@@ -1,0 +1,5 @@
+bucket       = "backend_bucket"
+key          = "bucket_key"
+region       = "region_name"
+encrypt      = true
+use_lockfile = true

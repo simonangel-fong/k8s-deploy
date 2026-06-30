@@ -1,0 +1,4 @@
+project_name        = "project-name"
+env                 = "env"
+resource_group_name = "rg-name"
+location            = "location"
