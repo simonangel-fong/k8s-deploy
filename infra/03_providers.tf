@@ -10,6 +10,9 @@ terraform {
   backend "s3" {}
 }
 
+# ##############################
+# Azure
+# ##############################
 provider "azurerm" {
   features {}
 }
