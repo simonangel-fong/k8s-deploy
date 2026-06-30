@@ -11,11 +11,16 @@ terraform -chdir=infra destroy --auto-approve
 
 az aks get-credentials --resource-group rg_general --name argo-istio-dev --overwrite-existing
 
+export KUBECONFIG=~/kubeconfig
+kubectl get node
+
+
 ```
 
 ## ArgoCD
 
 ```sh
+export KUBECONFIG=~/kubeconfig
 helm install argocd argo/argo-cd --namespace argocd --create-namespace
 
 kubectl port-forward service/argocd-server -n argocd 8080:443

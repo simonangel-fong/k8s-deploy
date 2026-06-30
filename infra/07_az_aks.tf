@@ -1,6 +1,6 @@
 # aks.tf
 module "aks" {
-  source = "git::https://github.com/simonangel-fong/terraform-template.git//azure/aks"
+  source = "git::https://github.com/simonangel-fong/terraform-template.git//azure/aks_dev"
 
   aks_name            = local.common_name
   resource_group_name = data.azurerm_resource_group.main.name
