@@ -1,5 +1,5 @@
 # outputs.tf
 
-output "rg_name" {
-  value = data.azurerm_resource_group.main.name
+output "kubeconfig_cmd" {
+  value = module.aks.kubeconfig_cmd
 }
