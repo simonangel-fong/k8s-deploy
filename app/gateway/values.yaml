@@ -2,7 +2,7 @@ host: deploy.arguswatcher.net
 
 gateway:
   selector:
-    istio: gateway
+    istio: ingressgateway
   namespace: istio-ingress
 
 backend:
@@ -16,7 +16,7 @@ frontend:
 tls:
   enabled: true
   httpsRedirect: false
-  secretName: letsencrypt-account-key
+  secretName: deploy-tls
   issuer:
     email: simonangelfong@gmail.com
     # server: https://acme-v02.api.letsencrypt.org/directory   # prod
