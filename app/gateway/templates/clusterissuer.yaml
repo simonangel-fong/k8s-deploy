@@ -13,4 +13,8 @@ spec:
       - http01:
           gatewayHTTPRoute:
             parentRefs:
+              - name: demo-gateway
+                namespace: istio-ingress
+                kind: Gateway
+
 {{- end }}
