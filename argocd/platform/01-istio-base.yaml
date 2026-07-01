@@ -25,6 +25,7 @@ spec:
       jqPathExpressions:
         - .webhooks[].clientConfig.caBundle
         - .webhooks[].failurePolicy
+        - '.webhooks[].namespaceSelector.matchExpressions[] | select(.key == "control-plane" or .key == "kubernetes.azure.com/managedby")'
   syncPolicy:
     automated:
       prune: true

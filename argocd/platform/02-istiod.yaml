@@ -25,12 +25,14 @@ spec:
       jqPathExpressions:
         - .webhooks[].clientConfig.caBundle
         - .webhooks[].failurePolicy
+        - '.webhooks[].namespaceSelector.matchExpressions[] | select(.key == "control-plane" or .key == "kubernetes.azure.com/managedby")'
     - group: admissionregistration.k8s.io
       kind: ValidatingWebhookConfiguration
       name: istio-validator-istio-system
       jqPathExpressions:
         - .webhooks[].clientConfig.caBundle
         - .webhooks[].failurePolicy
+        - '.webhooks[].namespaceSelector.matchExpressions[] | select(.key == "control-plane" or .key == "kubernetes.azure.com/managedby")'
   syncPolicy:
     automated:
       prune: true
