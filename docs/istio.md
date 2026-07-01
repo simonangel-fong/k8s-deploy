@@ -1,12 +1,9 @@
-
-
-
 ### Istio Gateway + VirtualService
 
 Frontend nginx no longer proxies `/api/` — Istio does the split at the edge:
 
 - `deploy.arguswatcher.net/api/*` → backend
-- `deploy.arguswatcher.net/*`     → frontend
+- `deploy.arguswatcher.net/*` → frontend
 
 ```sh
 # 1. enable sidecar injection in both namespaces, then restart pods
@@ -23,14 +20,15 @@ kubectl get po -n frontend -o wide
 
 # 2. discover the ingress LB IP
 kubectl get svc -n istio-ingress istio-gateway
-# NAME            TYPE           CLUSTER-IP    EXTERNAL-IP      PORT(S)                                      AGE
-# istio-gateway   LoadBalancer   10.0.70.240   20.116.225.126   15021:30235/TCP,80:30511/TCP,443:31927/TCP   3m51s
+# NAME            TYPE           CLUSTER-IP    EXTERNAL-IP    PORT(S)                                      AGE
+# istio-gateway   LoadBalancer   10.0.66.102   20.116.144.0   15021:32407/TCP,80:31116/TCP,443:32590/TCP   36m
+
 
 # 3. verify
-curl -s --resolve deploy.arguswatcher.net:80:20.116.225.126 http://deploy.arguswatcher.net/api/
+curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/api/
 # {"app":"demo app","version":"V1.0.0"}
-curl -s --resolve deploy.arguswatcher.net:80:20.116.225.126 http://deploy.arguswatcher.net/
-curl -s --resolve deploy.arguswatcher.net:80:20.116.225.126 http://deploy.arguswatcher.net/healthz/
+curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/
+curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/healthz/
 # ok
 ```
 
@@ -48,9 +46,9 @@ Enabled via `security.enabled: true` in each app chart's values.
 # after push + argo sync
 
 # positive: still works through the gateway
-curl -s --resolve deploy.arguswatcher.net:80:20.116.225.126 http://deploy.arguswatcher.net/api/
+curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/api/
 # {"app":"demo app","version":"V1.0.0"}
-curl -s --resolve deploy.arguswatcher.net:80:20.116.225.126 http://deploy.arguswatcher.net/
+curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/
 
 # negative: in-cluster call from a random pod should be denied
 kubectl run -n default --rm -it debug --image=curlimages/curl --restart=Never -- curl -sv http://backend.backend.svc.cluster.local/api/
@@ -100,11 +98,11 @@ kubectl -n istio-ingress get certificate deploy -w
 kubectl -n istio-ingress describe certificate deploy | tail -30
 
 # once READY=True, test HTTPS (staging cert is untrusted → -k)
-curl -k -s --resolve deploy.arguswatcher.net:443:20.116.225.126 https://deploy.arguswatcher.net/api/
-curl -k -s --resolve deploy.arguswatcher.net:443:20.116.225.126 https://deploy.arguswatcher.net/
+curl -k -s --resolve deploy.arguswatcher.net:443:20.116.144.0 https://deploy.arguswatcher.net/api/
+curl -k -s --resolve deploy.arguswatcher.net:443:20.116.144.0 https://deploy.arguswatcher.net/
 
 # HTTP still works (no redirect yet)
-curl    -s --resolve deploy.arguswatcher.net:80:20.116.225.126  http://deploy.arguswatcher.net/api/
+curl    -s --resolve deploy.arguswatcher.net:80:20.116.144.0  http://deploy.arguswatcher.net/api/
 ```
 
 **Step B** — enable redirect.
@@ -112,7 +110,7 @@ curl    -s --resolve deploy.arguswatcher.net:80:20.116.225.126  http://deploy.ar
 ```sh
 # flip tls.httpsRedirect=true in app/gateway/values.yaml, push
 # HTTP now 301s to HTTPS
-curl -i --resolve deploy.arguswatcher.net:80:20.116.225.126 http://deploy.arguswatcher.net/
+curl -i --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/
 # HTTP/1.1 301 Moved Permanently
 # location: https://deploy.arguswatcher.net/
 ```
@@ -133,7 +131,6 @@ kubectl -n istio-ingress delete secret deploy-tls
 # cert-manager reissues from prod → browser trusts it, remove -k from curl
 ```
 
-
 ---
 
 ## Runbook
@@ -144,8 +141,6 @@ kubectl -n istio-ingress get certificaterequest,order,challenge
 kubectl -n istio-ingress describe challenge
 ```
 
-
 - No Challenge object exists, Order is stuck → issuer/DNS/ACME registration problem.
 - Challenge exists, state = pending, reason mentions "self check failed" or HTTP 404 → the http01.ingress.class: istio solver created an Ingress but Istio isn't routing it. This is the most likely case given your setup.
 - Challenge shows "no such host" / DNS error → deploy.arguswatcher.net doesn't resolve to your ingress IP yet.
-
