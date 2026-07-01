@@ -1,0 +1,14 @@
+{{- if .Values.tls.enabled }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: deploy
+  namespace: {{ .Values.gateway.namespace }}
+spec:
+  secretName: {{ .Values.tls.secretName }}
+  dnsNames:
+    - {{ .Values.host | quote }}
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+{{- end }}

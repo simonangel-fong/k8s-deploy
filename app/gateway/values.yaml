@@ -12,3 +12,12 @@ backend:
 frontend:
   host: frontend.frontend.svc.cluster.local
   port: 80
+
+tls:
+  enabled: true
+  httpsRedirect: false
+  secretName: deploy-tls
+  issuer:
+    email: admin@arguswatcher.net
+    # server: https://acme-v02.api.letsencrypt.org/directory   # prod
+    server: https://acme-staging-v02.api.letsencrypt.org/directory

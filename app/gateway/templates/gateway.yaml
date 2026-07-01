@@ -12,3 +12,18 @@ spec:
         protocol: HTTP
       hosts:
         - {{ .Values.host | quote }}
+      {{- if and .Values.tls.enabled .Values.tls.httpsRedirect }}
+      tls:
+        httpsRedirect: true
+      {{- end }}
+    {{- if .Values.tls.enabled }}
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+        - {{ .Values.host | quote }}
+      tls:
+        mode: SIMPLE
+        credentialName: {{ .Values.tls.secretName }}
+    {{- end }}

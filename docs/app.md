@@ -193,16 +193,90 @@ Enabled via `security.enabled: true` in each app chart's values.
 
 # positive: still works through the gateway
 curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/api/
+# {"app":"demo app","version":"V1.0.0"}
 curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/
 
 # negative: in-cluster call from a random pod should be denied
-kubectl run -n default --rm -it debug --image=curlimages/curl --restart=Never -- \
-  curl -sv http://backend.backend.svc.cluster.local/api/
-# expect: HTTP/1.1 403 Forbidden  (or connection reset — no sidecar → mTLS handshake fails)
+kubectl run -n default --rm -it debug --image=curlimages/curl --restart=Never -- curl -sv http://backend.backend.svc.cluster.local/api/
+# * Host backend.backend.svc.cluster.local:80 was resolved.
+# * IPv6: (none)
+# * IPv4: 10.0.190.94
+# *   Trying 10.0.190.94:80...
+# * Established connection to backend.backend.svc.cluster.local (10.0.190.94 port 80) from 10.244.0.18 port 54590
+# * using HTTP/1.x
+# > GET /api/ HTTP/1.1
+# > Host: backend.backend.svc.cluster.local
+# > User-Agent: curl/8.21.0
+# > Accept: */*
+# >
+# * Request completely sent off
+# * Recv failure: Connection reset by peer
+# * closing connection #0
+# pod "debug" deleted from default namespace
+# pod default/debug terminated (Error)
 
 # check what got applied
 kubectl get authorizationpolicy,peerauthentication -A
+# NAMESPACE   NAME                                             ACTION   AGE
+# backend     authorizationpolicy.security.istio.io/backend    ALLOW    2m1s
+# frontend    authorizationpolicy.security.istio.io/frontend   ALLOW    2m16s
+
+# NAMESPACE   NAME                                           MODE     AGE
+# backend     peerauthentication.security.istio.io/default   STRICT   2m1s
+# frontend    peerauthentication.security.istio.io/default   STRICT   2m16s
 ```
+
+### Phase 06 — TLS via cert-manager + Let's Encrypt
+
+Cloudflare A record is DNS-only (grey cloud) so LE HTTP-01 can reach the origin.
+Staging issuer to start (browser will warn — expected); switch to prod later by editing `tls.issuer.server` in [app/gateway/values.yaml](app/gateway/values.yaml).
+
+**Two-step rollout** because `httpsRedirect: true` would break the HTTP-01 challenge:
+
+**Step A** — TLS on :443, no redirect yet.
+
+```sh
+# values.yaml: tls.enabled=true, tls.httpsRedirect=false
+git push  # argo syncs cert-manager, ClusterIssuer, Certificate, :443 listener
+
+# watch the cert issue (staging is fast; ~30–60s)
+kubectl -n istio-ingress get certificate deploy -w
+kubectl -n istio-ingress describe certificate deploy | tail -30
+
+# once READY=True, test HTTPS (staging cert is untrusted → -k)
+curl -k -s --resolve deploy.arguswatcher.net:443:130.107.8.143 https://deploy.arguswatcher.net/api/
+curl -k -s --resolve deploy.arguswatcher.net:443:130.107.8.143 https://deploy.arguswatcher.net/
+
+# HTTP still works (no redirect yet)
+curl    -s --resolve deploy.arguswatcher.net:80:130.107.8.143  http://deploy.arguswatcher.net/api/
+```
+
+**Step B** — enable redirect.
+
+```sh
+# flip tls.httpsRedirect=true in app/gateway/values.yaml, push
+# HTTP now 301s to HTTPS
+curl -i --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/
+# HTTP/1.1 301 Moved Permanently
+# location: https://deploy.arguswatcher.net/
+```
+
+**Switch to production Let's Encrypt** once staging works end-to-end:
+
+```yaml
+# app/gateway/values.yaml
+tls:
+  issuer:
+    server: https://acme-v02.api.letsencrypt.org/directory
+```
+
+Then delete the staging cert Secret so a fresh prod cert is issued:
+
+```sh
+kubectl -n istio-ingress delete secret deploy-tls
+# cert-manager reissues from prod → browser trusts it, remove -k from curl
+```
+
 
 
 
