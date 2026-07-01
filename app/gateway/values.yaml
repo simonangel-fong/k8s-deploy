@@ -18,6 +18,6 @@ tls:
   httpsRedirect: false
   secretName: deploy-tls
   issuer:
-    email: admin@arguswatcher.net
+    email: simonangelfong@gmail.com
     # server: https://acme-v02.api.letsencrypt.org/directory   # prod
     server: https://acme-staging-v02.api.letsencrypt.org/directory

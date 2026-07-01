@@ -40,5 +40,5 @@ Delete the root Application, then `terraform destroy` the infra.
 ## Dev
 
 ```sh
-kubectl apply -f argocd/01-root.yaml
+kubectl apply -f argocd/00-root.yaml
 ```
