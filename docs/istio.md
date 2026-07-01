@@ -20,15 +20,15 @@ kubectl get po -n frontend -o wide
 
 # 2. discover the ingress LB IP
 kubectl get svc -n istio-ingress istio-gateway
-# NAME            TYPE           CLUSTER-IP    EXTERNAL-IP    PORT(S)                                      AGE
-# istio-gateway   LoadBalancer   10.0.66.102   20.116.144.0   15021:32407/TCP,80:31116/TCP,443:32590/TCP   36m
+# NAME            TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)                                      AGE
+# istio-gateway   LoadBalancer   10.0.118.109   130.107.229.119   15021:32522/TCP,80:31492/TCP,443:31279/TCP   5m11s
 
 
 # 3. verify
-curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/api/
+curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/api/
 # {"app":"demo app","version":"V1.0.0"}
-curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/
-curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/healthz/
+curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/
+curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/healthz/
 # ok
 ```
 
@@ -46,9 +46,9 @@ Enabled via `security.enabled: true` in each app chart's values.
 # after push + argo sync
 
 # positive: still works through the gateway
-curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/api/
+curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/api/
 # {"app":"demo app","version":"V1.0.0"}
-curl -s --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/
+curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/
 
 # negative: in-cluster call from a random pod should be denied
 kubectl run -n default --rm -it debug --image=curlimages/curl --restart=Never -- curl -sv http://backend.backend.svc.cluster.local/api/
@@ -98,11 +98,11 @@ kubectl -n istio-ingress get certificate deploy -w
 kubectl -n istio-ingress describe certificate deploy | tail -30
 
 # once READY=True, test HTTPS (staging cert is untrusted → -k)
-curl -k -s --resolve deploy.arguswatcher.net:443:20.116.144.0 https://deploy.arguswatcher.net/api/
-curl -k -s --resolve deploy.arguswatcher.net:443:20.116.144.0 https://deploy.arguswatcher.net/
+curl -k -s --resolve deploy.arguswatcher.net:443:130.107.229.119 https://deploy.arguswatcher.net/api/
+curl -k -s --resolve deploy.arguswatcher.net:443:130.107.229.119 https://deploy.arguswatcher.net/
 
 # HTTP still works (no redirect yet)
-curl    -s --resolve deploy.arguswatcher.net:80:20.116.144.0  http://deploy.arguswatcher.net/api/
+curl    -s --resolve deploy.arguswatcher.net:80:130.107.229.119  http://deploy.arguswatcher.net/api/
 ```
 
 **Step B** — enable redirect.
@@ -110,7 +110,7 @@ curl    -s --resolve deploy.arguswatcher.net:80:20.116.144.0  http://deploy.argu
 ```sh
 # flip tls.httpsRedirect=true in app/gateway/values.yaml, push
 # HTTP now 301s to HTTPS
-curl -i --resolve deploy.arguswatcher.net:80:20.116.144.0 http://deploy.arguswatcher.net/
+curl -i --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/
 # HTTP/1.1 301 Moved Permanently
 # location: https://deploy.arguswatcher.net/
 ```

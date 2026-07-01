@@ -10,7 +10,12 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-account-key
     solvers:
-      - http01:
-          ingress:
-            class: istio
+      - dns01:
+          cloudflare:
+            apiTokenSecretRef:
+              name: {{ .Values.tls.issuer.cloudflare.tokenSecretName }}
+              key: {{ .Values.tls.issuer.cloudflare.tokenSecretKey }}
+        selector:
+          dnsZones:
+            - {{ .Values.tls.issuer.cloudflare.zone | quote }}
 {{- end }}

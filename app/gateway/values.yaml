@@ -21,3 +21,10 @@ tls:
     email: simonangelfong@gmail.com
     # server: https://acme-v02.api.letsencrypt.org/directory   # prod
     server: https://acme-staging-v02.api.letsencrypt.org/directory
+    cloudflare:
+      zone: arguswatcher.net
+      # Secret must be created manually in the cert-manager namespace:
+      #   kubectl -n cert-manager create secret generic cloudflare-api-token \
+      #     --from-literal=api-token='<TOKEN>'
+      tokenSecretName: cloudflare-api-token
+      tokenSecretKey: api-token

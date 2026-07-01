@@ -1,3 +1,4 @@
 # argocd-argorollout-istio
 
-az aks show -g rg-general -n k8s-deploy-dev --query networkProfile.networkPolicy
+kubectl -n cert-manager create secret generic cloudflare-api-token \
+  --from-literal=api-token='PASTE_YOUR_TOKEN_HERE'
