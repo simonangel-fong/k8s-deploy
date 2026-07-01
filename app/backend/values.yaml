@@ -12,3 +12,6 @@ service:
 api:
   appName: demo app
   version: V1.0.0
+
+security:
+  enabled: true

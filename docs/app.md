@@ -172,14 +172,38 @@ kubectl get svc -n istio-ingress istio-gateway
 
 # 3. verify
 curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/api/
+# {"app":"demo app","version":"V1.0.0"}
 curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/
 curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/healthz/
-
-
-
-# skip DNS while testing
-curl -s --resolve deploy.arguswatcher.net:80:<LB_IP> http://deploy.arguswatcher.net/api/
+# ok
 ```
+
+### Phase 05 — AuthorizationPolicy + STRICT mTLS
+
+Locks down `backend` and `frontend` at L7 (Envoy):
+
+- **PeerAuthentication STRICT** — non-mTLS connections rejected. Kubelet probes bypass sidecar (Istio rewrites them), so probes keep working.
+- **AuthorizationPolicy ALLOW** — only requests from the ingress gateway SPIFFE identity `cluster.local/ns/istio-ingress/sa/istio-gateway` are permitted, to expected paths only.
+- Anything else → **403 RBAC: access denied**.
+
+Enabled via `security.enabled: true` in each app chart's values.
+
+```sh
+# after push + argo sync
+
+# positive: still works through the gateway
+curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/api/
+curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/
+
+# negative: in-cluster call from a random pod should be denied
+kubectl run -n default --rm -it debug --image=curlimages/curl --restart=Never -- \
+  curl -sv http://backend.backend.svc.cluster.local/api/
+# expect: HTTP/1.1 403 Forbidden  (or connection reset — no sidecar → mTLS handshake fails)
+
+# check what got applied
+kubectl get authorizationpolicy,peerauthentication -A
+```
+
 
 
 
