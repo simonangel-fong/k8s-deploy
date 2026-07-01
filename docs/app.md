@@ -165,10 +165,10 @@ kubectl get po -n frontend -o wide
 # NAME                        READY   STATUS    RESTARTS   AGE   IP            NODE                              NOMINATED NODE   READINESS GATES
 # frontend-754c4f9787-dvcj8   2/2     Running   0          20s   10.244.1.23   aks-default-14028782-vmss000000   <none>           <none>
 
-# 2. discover the ingress LB IP and point DNS at it
+# 2. discover the ingress LB IP
 kubectl get svc -n istio-ingress istio-gateway
 # NAME            TYPE           CLUSTER-IP    EXTERNAL-IP     PORT(S)                                      AGE
-# istio-gateway   LoadBalancer   10.0.45.253   130.107.8.143   15021:30242/TCP,80:32187/TCP,443:32165/TCP   15m
+# istio-gateway   LoadBalancer   10.0.45.253   130.107.8.143   15021:30242/TCP,80:32187/TCP,443:32165/TCP   21m
 
 # 3. verify
 curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/api/

@@ -2,7 +2,7 @@ host: deploy.arguswatcher.net
 
 gateway:
   selector:
-    istio: ingressgateway
+    istio: gateway
   namespace: istio-ingress
 
 backend:
