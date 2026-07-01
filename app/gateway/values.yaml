@@ -16,7 +16,7 @@ frontend:
 tls:
   enabled: true
   httpsRedirect: false
-  secretName: deploy-tls
+  secretName: letsencrypt-account-key
   issuer:
     email: simonangelfong@gmail.com
     # server: https://acme-v02.api.letsencrypt.org/directory   # prod
