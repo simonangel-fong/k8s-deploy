@@ -19,7 +19,8 @@ spec:
       values: |
         crds:
           enabled: true
-          config.enableGatewayAPI: true
+        config:
+          enableGatewayAPI: true
         webhook:
           validatingWebhookConfigurationAnnotations:
             admissions.enforcer/disabled: "true"
