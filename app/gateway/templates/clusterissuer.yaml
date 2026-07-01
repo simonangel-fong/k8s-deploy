@@ -10,11 +10,7 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-account-key
     solvers:
-      - http01:
-          gatewayHTTPRoute:
-            parentRefs:
-              - name: demo-gateway
-                namespace: istio-ingress
-                kind: Gateway
-
+    - http01:
+        ingress:
+          class: istio
 {{- end }}
