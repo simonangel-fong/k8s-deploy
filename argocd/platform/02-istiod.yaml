@@ -22,20 +22,20 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: istio-system
-  ignoreDifferences:
-    - group: admissionregistration.k8s.io
-      kind: MutatingWebhookConfiguration
-      name: istio-sidecar-injector
-      jqPathExpressions:
-        - .webhooks[].clientConfig.caBundle
-        - .webhooks[].failurePolicy
-    - group: admissionregistration.k8s.io
-      kind: ValidatingWebhookConfiguration
-      name: istio-validator-istio-system
-      jqPathExpressions:
-        - .webhooks[].clientConfig.caBundle
-        - .webhooks[].failurePolicy
-        - '.webhooks[].namespaceSelector.matchExpressions[] | select(.key == "control-plane" or .key == "kubernetes.azure.com/managedby")'
+  # ignoreDifferences:
+  #   - group: admissionregistration.k8s.io
+  #     kind: MutatingWebhookConfiguration
+  #     name: istio-sidecar-injector
+  #     jqPathExpressions:
+  #       - .webhooks[].clientConfig.caBundle
+  #       - .webhooks[].failurePolicy
+  #   - group: admissionregistration.k8s.io
+  #     kind: ValidatingWebhookConfiguration
+  #     name: istio-validator-istio-system
+  #     jqPathExpressions:
+  #       - .webhooks[].clientConfig.caBundle
+  #       - .webhooks[].failurePolicy
+  #       - '.webhooks[].namespaceSelector.matchExpressions[] | select(.key == "control-plane" or .key == "kubernetes.azure.com/managedby")'
   syncPolicy:
     automated:
       prune: true
