@@ -1,0 +1,14 @@
+host: deploy.arguswatcher.net
+
+gateway:
+  selector:
+    istio: ingressgateway
+  namespace: istio-ingress
+
+backend:
+  host: backend.backend.svc.cluster.local
+  port: 80
+
+frontend:
+  host: frontend.frontend.svc.cluster.local
+  port: 80

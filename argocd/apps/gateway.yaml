@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: frontend
+  name: gateway
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "11"
+    argocd.argoproj.io/sync-wave: "12"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -12,12 +12,12 @@ spec:
   source:
     repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
     targetRevision: master
-    path: app/frontend
+    path: app/gateway
     helm:
-      releaseName: frontend
+      releaseName: gateway
   destination:
     server: https://kubernetes.default.svc
-    namespace: frontend
+    namespace: istio-ingress
   syncPolicy:
     automated:
       prune: true

@@ -145,4 +145,41 @@ curl -s http://localhost:8081/healthz/  # ok
 
 ```
 
+### Phase 04 — Istio Gateway + VirtualService
+
+Frontend nginx no longer proxies `/api/` — Istio does the split at the edge:
+
+- `deploy.arguswatcher.net/api/*` → backend
+- `deploy.arguswatcher.net/*`     → frontend
+
+```sh
+# 1. enable sidecar injection in both namespaces, then restart pods
+kubectl label ns backend  istio-injection=enabled --overwrite
+kubectl label ns frontend istio-injection=enabled --overwrite
+kubectl rollout restart deploy/backend  -n backend
+kubectl rollout restart deploy/frontend -n frontend
+kubectl get po -n backend  -o wide
+# NAME                      READY   STATUS    RESTARTS   AGE   IP             NODE                              NOMINATED NODE   READINESS GATES
+# backend-d9fd66d48-5sqrq   2/2     Running   0          7s    10.244.1.157   aks-default-14028782-vmss000000   <none>           <none>
+kubectl get po -n frontend -o wide
+# NAME                        READY   STATUS    RESTARTS   AGE   IP            NODE                              NOMINATED NODE   READINESS GATES
+# frontend-754c4f9787-dvcj8   2/2     Running   0          20s   10.244.1.23   aks-default-14028782-vmss000000   <none>           <none>
+
+# 2. discover the ingress LB IP and point DNS at it
+kubectl get svc -n istio-ingress istio-gateway
+# NAME            TYPE           CLUSTER-IP    EXTERNAL-IP     PORT(S)                                      AGE
+# istio-gateway   LoadBalancer   10.0.45.253   130.107.8.143   15021:30242/TCP,80:32187/TCP,443:32165/TCP   15m
+
+# 3. verify
+curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/api/
+curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/
+curl -s --resolve deploy.arguswatcher.net:80:130.107.8.143 http://deploy.arguswatcher.net/healthz/
+
+
+
+# skip DNS while testing
+curl -s --resolve deploy.arguswatcher.net:80:<LB_IP> http://deploy.arguswatcher.net/api/
+```
+
+
 

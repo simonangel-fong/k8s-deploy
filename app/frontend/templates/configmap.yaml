@@ -19,11 +19,6 @@ data:
         default_type text/plain;
         return 200 'ok';
       }
-
-      location /api/ {
-        proxy_pass http://{{ .Values.backend.host }}:{{ .Values.backend.port }}/api/;
-        proxy_set_header Host $host;
-      }
     }
 
   index.html: |
