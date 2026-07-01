@@ -25,12 +25,17 @@ spec:
       name: backend
       jsonPointers:
         - /spec/http
-    # argo-rollouts injects rollouts-pod-template-hash into DestinationRule subsets
-    - group: networking.istio.io
-      kind: DestinationRule
-      name: backend
+    # argo-rollouts injects rollouts-pod-template-hash into selectors
+    - group: ""
+      kind: Service
+      name: backend-canary
       jsonPointers:
-        - /spec/subsets
+        - /spec/selector
+    - group: ""
+      kind: Service
+      name: backend-stable
+      jsonPointers:
+        - /spec/selector
   syncPolicy:
     automated:
       prune: true

@@ -1,0 +1,19 @@
+# DestinationRule defines the two subsets Argo Rollouts targets.
+# The `rollouts-pod-template-hash` label values are placeholders — Argo
+# Rollouts patches them at runtime with real ReplicaSet hashes so that
+# `stable` binds to old pods and `canary` binds to new pods.
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: {{ include "backend.fullname" . }}
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+spec:
+  host: {{ include "backend.fullname" . }}
+  subsets:
+    - name: stable
+      labels:
+        rollouts-pod-template-hash: stable-placeholder
+    - name: canary
+      labels:
+        rollouts-pod-template-hash: canary-placeholder

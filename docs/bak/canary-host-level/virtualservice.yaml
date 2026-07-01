@@ -1,6 +1,3 @@
-# Subset-level split: both destinations reference the same host,
-# distinguished only by `subset`. Argo Rollouts patches the two `weight`
-# numbers as the canary progresses through its steps.
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
@@ -19,14 +16,12 @@ spec:
             prefix: /api/
       route:
         - destination:
-            host: {{ include "backend.fullname" . }}
+            host: {{ include "backend.fullname" . }}-stable
             port:
               number: {{ .Values.service.port }}
-            subset: stable
           weight: 100
         - destination:
-            host: {{ include "backend.fullname" . }}
+            host: {{ include "backend.fullname" . }}-canary
             port:
               number: {{ .Values.service.port }}
-            subset: canary
           weight: 0

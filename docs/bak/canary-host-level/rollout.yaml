@@ -42,17 +42,13 @@ spec:
             name: {{ include "backend.fullname" . }}
   strategy:
     canary:
-      # Subset-level routing: Rollouts patches DestinationRule subsets, not Services.
-      # No stableService / canaryService fields when using DestinationRule subsets.
+      canaryService: {{ include "backend.fullname" . }}-canary
+      stableService: {{ include "backend.fullname" . }}-stable
       trafficRouting:
         istio:
           virtualServices:
             - name: {{ include "backend.fullname" . }}
               routes:
                 - primary
-          destinationRule:
-            name: {{ include "backend.fullname" . }}
-            stableSubsetName: stable
-            canarySubsetName: canary
       steps:
         {{- toYaml .Values.canary.steps | nindent 8 }}
