@@ -1,8 +1,8 @@
-# backend-canary-multisvc.yaml
+# backend-canary-multidest.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: app-02-backend-canary-multisvc
+  name: app-02-backend-canary-multidest
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "10"
@@ -15,7 +15,7 @@ spec:
     targetRevision: master
     helm:
       releaseName: backend
-    path: app/backend-canary-multisvc
+    path: app/backend-canary-multidest
   destination:
     server: https://kubernetes.default.svc
     namespace: backend
@@ -26,17 +26,12 @@ spec:
       name: backend
       jsonPointers:
         - /spec/http
-    # argo-rollouts injects rollouts-pod-template-hash into selectors
-    - group: ""
-      kind: Service
-      name: backend-canary
+    # argo-rollouts injects rollouts-pod-template-hash into DestinationRule subsets
+    - group: networking.istio.io
+      kind: DestinationRule
+      name: backend
       jsonPointers:
-        - /spec/selector
-    - group: ""
-      kind: Service
-      name: backend-stable
-      jsonPointers:
-        - /spec/selector
+        - /spec/subsets
   syncPolicy:
     automated:
       prune: true
