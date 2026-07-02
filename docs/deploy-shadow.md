@@ -30,7 +30,7 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 
 ```sh
 # 1. Watch canary pod access logs — these are the mirrored requests
-kubectl logs -n backend -l app.kubernetes.io/name=backend-shadow -f | jq .
+kubectl logs -n backend -l app.kubernetes.io/name=backend-shadow -f
 
 # 2. In another terminal, drive traffic against the primary
 while true; do
