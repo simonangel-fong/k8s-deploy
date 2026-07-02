@@ -1,42 +1,42 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: app-02-backend
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "10"
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
-    targetRevision: master
-    helm:
-      releaseName: backend
-    # path: app/backend
-    # path: app/backend-canary-multisvc  # canary multi-services
-    path: app/backend-canary-multdest # canary multi-destination
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: backend
-  ignoreDifferences:
-    # argo-rollouts injects rollouts-pod-template-hash into the active/preview
-    # Service selectors — this is how the blue-green flip actually happens.
-    - group: ""
-      kind: Service
-      name: backend-active
-      jsonPointers:
-        - /spec/selector
-    - group: ""
-      kind: Service
-      name: backend-preview
-      jsonPointers:
-        - /spec/selector
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: app-02-backend
+#   namespace: argocd
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "10"
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
+#     targetRevision: master
+#     helm:
+#       releaseName: backend
+#     # path: app/backend
+#     # path: app/backend-canary-multisvc  # canary multi-services
+#     path: app/backend-canary-multdest # canary multi-destination
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: backend
+#   ignoreDifferences:
+#     # argo-rollouts injects rollouts-pod-template-hash into the active/preview
+#     # Service selectors — this is how the blue-green flip actually happens.
+#     - group: ""
+#       kind: Service
+#       name: backend-active
+#       jsonPointers:
+#         - /spec/selector
+#     - group: ""
+#       kind: Service
+#       name: backend-preview
+#       jsonPointers:
+#         - /spec/selector
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true
