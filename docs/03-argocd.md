@@ -47,8 +47,8 @@ export KUBECONFIG=~/kubeconfig
 az aks get-credentials --resource-group rg-general --name k8s-deploy-dev --overwrite-existing -f $KUBECONFIG
 helm install argocd argo/argo-cd --namespace argocd --create-namespace
 
-kubectl port-forward service/argocd-server -n argocd 8080:443
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 --decode; echo
+kubectl port-forward service/argocd-server -n argocd 8080:443
 ```
 
 

@@ -12,7 +12,9 @@ spec:
   source:
     repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
     targetRevision: master
-    path: app/backend
+    # path: app/backend
+    # canary multi-services
+    path: app/backend-canary-multisvc
     helm:
       releaseName: backend
   destination:

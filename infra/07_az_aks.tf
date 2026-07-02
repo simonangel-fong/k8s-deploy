@@ -8,7 +8,7 @@ module "aks" {
 
   default_node_pool = {
     vm_size        = "standard_dc2s_v3"
-    node_count     = 3
+    node_count     = 2
     vnet_subnet_id = azurerm_subnet.main.id
   }
 
