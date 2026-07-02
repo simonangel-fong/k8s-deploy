@@ -32,6 +32,17 @@ security:
 shadow:
   canary:
     steps:
+      # Phase 0 — scale the canary ReplicaSet independently of traffic weight.
+      # setMirrorRoute alone does NOT create canary pods; Rollouts only sizes
+      # the canary RS when setWeight fires. Without this step, mirrored
+      # traffic goes to a Service whose selector matches zero pods and the
+      # shadow demo is silent.
+      # matchTrafficWeight: false decouples pod count from route weight —
+      # "give me 2 canary pods regardless of the 0% traffic weight."
+      - setCanaryScale:
+          replicas: 2
+          matchTrafficWeight: false
+
       # Phase 1 — shadow only.
       # setMirrorRoute patches the VirtualService so 100% of GET traffic on
       # the `primary` route is mirrored (fire-and-forget) to the canary
@@ -52,6 +63,11 @@ shadow:
       # `setMirrorRoute` with only `name` (no match/percentage) removes the
       # previously-added mirror route.
       - setMirrorRoute: { name: shadow }
+
+      # Hand pod scaling back to Rollouts — from here the canary RS is sized
+      # proportional to setWeight (matchTrafficWeight defaults back to true).
+      - setCanaryScale:
+          matchTrafficWeight: true
 
       # Phase 3 — weighted canary ramp. Auto-progresses through 10 → 50,
       # then parks at the final unbounded pause for manual promote/abort.
