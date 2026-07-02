@@ -1,0 +1,48 @@
+replicaCount: 4
+
+image:
+  repository: nginx
+  tag: alpine
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
+host: deploy.arguswatcher.net
+gateway:
+  namespace: istio-ingress
+  name: demo-gateway
+
+api:
+  appName: demo app - a/b
+  version: V3.0.0
+
+security:
+  enabled: true
+
+ab:
+  # Header used to force a request onto variant B (the canary ReplicaSet).
+  # e.g. curl -H 'x-variant: b' https://deploy.arguswatcher.net/api/
+  variantHeader: x-variant
+  variantValue: b
+  # Background weighted split applied to all non-header traffic. Rollouts
+  # patches the primary VirtualService route each step to shift weight from
+  # stable (A) toward canary (B). Manual promotion — the rollout parks at
+  # the final pause until a human runs `kubectl argo rollouts promote`.
+  canary:
+    steps:
+      - setWeight: 10
+      - pause: { duration: 2m }
+      - setWeight: 25
+      - pause: { duration: 5m }
+      - setWeight: 50
+      - pause: {}
