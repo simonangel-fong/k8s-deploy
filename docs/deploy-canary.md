@@ -33,7 +33,6 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 # canary
 kubectl argo rollouts promote backend -n backend
 
-
 while true; do
   curl https://deploy.arguswatcher.net/api/
   echo
