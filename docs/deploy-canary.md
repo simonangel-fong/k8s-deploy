@@ -1,6 +1,40 @@
+# Deployment - Canary: Host-level Traffic Splitting
+
+[Back](../README.md)
+
+- [Deployment - Canary: Host-level Traffic Splitting](#deployment---canary-host-level-traffic-splitting)
+  - [Preparation](#preparation)
+  - [Rollout](#rollout)
+
+---
+
+## Preparation
 
 ```sh
 helm lint app/backend-canary-multisvc
 
+
+# Visualization
+# kiali
+kubectl -n istio-system port-forward svc/kiali 20001:20001
+
+# grafana
+kubectl -n istio-system port-forward svc/grafana 3000:3000
+```
+
+---
+
+## Rollout
+
+```sh
+# canary
+kubectl argo rollouts promote backend -n backend
+
+
+while true; do
+  curl https://deploy.arguswatcher.net/api/
+  echo
+  sleep 0.5
+done
 
 ```
