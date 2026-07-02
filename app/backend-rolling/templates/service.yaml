@@ -1,0 +1,20 @@
+# Single Service — RollingUpdate has no notion of stable/canary/preview,
+# so there's only one traffic destination. During a rollout the Service's
+# selector matches BOTH old-RS and new-RS pods; kube-proxy load-balances
+# across whichever ones are Ready, so clients see a gradient of
+# old-version to new-version responses over the rollout window.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backend-rolling.fullname" . }}
+  labels:
+    {{- include "backend-rolling.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "backend-rolling.selectorLabels" . | nindent 4 }}

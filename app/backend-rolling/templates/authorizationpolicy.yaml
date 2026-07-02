@@ -1,0 +1,22 @@
+{{- if .Values.security.enabled }}
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: {{ include "backend-rolling.fullname" . }}
+  labels:
+    {{- include "backend-rolling.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "backend-rolling.selectorLabels" . | nindent 6 }}
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - cluster.local/ns/istio-ingress/sa/istio-gateway
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/api/", "/healthz/"]
+{{- end }}

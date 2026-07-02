@@ -1,0 +1,6 @@
+apiVersion: v2
+name: backend-rolling
+description: Demo backend API served by nginx (plain Kubernetes RollingUpdate demo)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

@@ -29,27 +29,25 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 ## Rollout
 
 ```sh
-# 1. Watch canary pod access logs — these are the mirrored requests
-kubectl logs -n backend -l app.kubernetes.io/name=backend-shadow -f
-
-# 2. In another terminal, drive traffic against the primary
 while true; do
+  printf '%s ' "$(date +%T)"
   curl -s https://deploy.arguswatcher.net/api/
   echo
   sleep 0.5
 done
 
-# 3. Observe: client always sees V<previous>, but every request shows
-#    up in the canary pod's log with V4.0.0 — that's Istio dropping
-#    the mirror response and forwarding stable's.
+kubectl -n backend logs -f -l app.kubernetes.io/name=backend-shadow,rollouts-pod-template-hash=<CANARY_HASH> --prefix=true --tail=0
+# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] 127.0.0.6 - - [02/Jul/2026:19:18:45 +0000] "GET /api/ HTTP/1.1" 200 46 "-" "curl/8.5.0" "99.243.74.50,10.10.0.4,10.244.0.141"
+# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] {"time":"2026-07-02T19:18:45+00:00","ver":"V4.0.1","method":"GET","uri":"/api/","status":200,"xff":"99.243.74.50,10.10.0.4,10.244.0.141","ua":"curl/8.5.0"}
+# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] 127.0.0.6 - - [02/Jul/2026:19:18:46 +0000] "GET /api/ HTTP/1.1" 200 46 "-" "curl/8.5.0" "99.243.74.50,10.10.0.5,10.244.0.141"
+# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] {"time":"2026-07-02T19:18:46+00:00","ver":"V4.0.1","method":"GET","uri":"/api/","status":200,"xff":"99.243.74.50,10.10.0.5,10.244.0.141","ua":"curl/8.5.0"}
+# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] 127.0.0.6 - - [02/Jul/2026:19:18:47 +0000] "GET /api/ HTTP/1.1" 200 46 "-" "curl/8.5.0" "99.243.74.50,10.10.0.5,10.244.0.141"
 
-# 4. When satisfied, promote to advance past the manual gate
+# When satisfied, promote to advance past the manual gate
 kubectl argo rollouts promote backend-shadow -n backend
+# rollout 'backend-shadow' promoted
 
-# 5. Rollout auto-ramps 10% → 2m → 50%, then holds for final promote
-
-# 6. Full promote or rollback
+# Full promote or rollback
 kubectl argo rollouts promote backend-shadow -n backend    # or `undo`
-
 
 ```

@@ -1,0 +1,59 @@
+# Plain k8s Deployment with RollingUpdate strategy — no Argo Rollouts,
+# no traffic manipulation. The Deployment controller manages the
+# transition between ReplicaSets directly: create surge pods, wait for
+# Ready, terminate old pods, repeat. Clients see a mixed pool during
+# the rollout window.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backend-rolling.fullname" . }}
+  labels:
+    {{- include "backend-rolling.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.rolling.maxSurge }}
+      maxUnavailable: {{ .Values.rolling.maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "backend-rolling.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backend-rolling.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: APP_NAME
+              value: {{ .Values.api.appName | quote }}
+            - name: APP_VERSION
+              value: {{ .Values.api.version | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/templates/default.conf.template
+              subPath: default.conf.template
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: {{ include "backend-rolling.fullname" . }}
