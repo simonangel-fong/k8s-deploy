@@ -1,0 +1,58 @@
+# Plain k8s Deployment with Recreate strategy — no Argo Rollouts, no
+# traffic manipulation. The Deployment controller terminates ALL old
+# pods before creating ANY new ones, producing a hard downtime window.
+#
+# strategy.type: Recreate is INCOMPATIBLE with a rollingUpdate: block —
+# the API server rejects the manifest if both are present. That's why
+# there are no maxSurge / maxUnavailable knobs.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backend-recreate.fullname" . }}
+  labels:
+    {{- include "backend-recreate.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "backend-recreate.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backend-recreate.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: APP_NAME
+              value: {{ .Values.api.appName | quote }}
+            - name: APP_VERSION
+              value: {{ .Values.api.version | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/templates/default.conf.template
+              subPath: default.conf.template
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: {{ include "backend-recreate.fullname" . }}

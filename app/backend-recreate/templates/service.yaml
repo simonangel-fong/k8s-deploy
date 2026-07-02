@@ -1,0 +1,19 @@
+# Single Service — Recreate has no notion of stable/canary/preview.
+# During a rollout the Service's endpoints briefly drop to zero (all old
+# pods terminated, no new pods Ready yet). Clients get 503s or connection
+# errors for that window. That IS the demo.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backend-recreate.fullname" . }}
+  labels:
+    {{- include "backend-recreate.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "backend-recreate.selectorLabels" . | nindent 4 }}
