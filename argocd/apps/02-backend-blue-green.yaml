@@ -26,17 +26,24 @@ spec:
       name: backend
       jsonPointers:
         - /spec/http
-    # argo-rollouts injects rollouts-pod-template-hash into selectors
+    # argo-rollouts patches rollouts-pod-template-hash into these Service
+    # selectors at runtime. `managedFieldsManagers: [argo-rollouts]` tells
+    # Argo CD to leave any field managed by the rollouts controller alone,
+    # so self-heal won't strip the hash key mid-rollout.
     - group: ""
       kind: Service
-      name: backend-active
+      name: backend-backend-blue-green-active
       jsonPointers:
         - /spec/selector
+      managedFieldsManagers:
+        - argo-rollouts
     - group: ""
       kind: Service
-      name: backend-preview
+      name: backend-backend-blue-green-preview
       jsonPointers:
         - /spec/selector
+      managedFieldsManagers:
+        - argo-rollouts
   syncPolicy:
     automated:
       prune: true
