@@ -9,7 +9,7 @@ curl -sk https://deploy.arguswatcher.net/api/
 
 # Preview lane serves V1.2.0
 curl -sk -H 'x-preview: true' https://deploy.arguswatcher.net/api/
-# {"app":"demo app","version":"V1.1.14"}
+# {"app":"demo app","version":"V1.1.16"}
 
 # When happy, flip production
 kubectl argo rollouts promote backend -n backend

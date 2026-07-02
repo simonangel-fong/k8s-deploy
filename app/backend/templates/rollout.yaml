@@ -49,8 +49,10 @@ spec:
       # and preview -> new ReplicaSet.
       activeService: {{ include "backend.fullname" . }}-active
       previewService: {{ include "backend.fullname" . }}-preview
-      # Manual promotion — Rollout pauses after preview is ready; promote via:
-      #   kubectl argo rollouts promote {{ include "backend.fullname" . }} -n {{ .Release.Namespace }}
-      autoPromotionEnabled: false
+      # Auto-promotion: after the new ReplicaSet becomes fully available, wait
+      # `autoPromotionSeconds` (soak time on the preview lane), then flip the
+      # active Service to point at it — no manual `promote` needed.
+      autoPromotionEnabled: true
+      autoPromotionSeconds: {{ .Values.blueGreen.autoPromotionSeconds }}
       # Keep the old ReplicaSet running this long after the flip so aborts are near-instant.
       scaleDownDelaySeconds: {{ .Values.blueGreen.scaleDownDelaySeconds }}
