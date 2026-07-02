@@ -1,0 +1,55 @@
+# backend-shadow.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-02-backend-shadow
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
+    targetRevision: master
+    helm:
+      releaseName: backend-shadow
+    path: app/backend-shadow
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backend
+  ignoreDifferences:
+    # argo-rollouts mutates BOTH the mirror config (setMirrorRoute) and
+    # the weights (setWeight) on the `primary` route at each step, so
+    # ignore the whole /spec/http slice.
+    - group: networking.istio.io
+      kind: VirtualService
+      name: backend-shadow
+      jsonPointers:
+        - /spec/http
+    # argo-rollouts patches rollouts-pod-template-hash into these Service
+    # selectors at runtime. `managedFieldsManagers: [argo-rollouts]` tells
+    # Argo CD to leave any field managed by the rollouts controller alone,
+    # so self-heal won't strip the hash key mid-rollout.
+    - group: ""
+      kind: Service
+      name: backend-shadow-stable
+      jsonPointers:
+        - /spec/selector
+      managedFieldsManagers:
+        - argo-rollouts
+    - group: ""
+      kind: Service
+      name: backend-shadow-canary
+      jsonPointers:
+        - /spec/selector
+      managedFieldsManagers:
+        - argo-rollouts
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

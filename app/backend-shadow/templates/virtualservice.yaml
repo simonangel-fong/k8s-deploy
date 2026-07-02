@@ -1,0 +1,35 @@
+# Shadow rollout routing:
+#   All requests -> stable (weight 100), canary (weight 0) initially.
+# Argo Rollouts mutates this route at each step:
+#   Phase 1 (setMirrorRoute): adds `mirror` + `mirrorPercentage: 100` so
+#     100% of GET traffic is copied fire-and-forget to the canary Service.
+#     Responses from the mirror are discarded — clients only see stable.
+#   Phase 2 (setMirrorRoute without spec): removes the mirror.
+#   Phase 3 (setWeight): shifts real traffic weight toward canary.
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: {{ include "backend-shadow.fullname" . }}
+  labels:
+    {{- include "backend-shadow.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.host | quote }}
+  gateways:
+    - {{ .Values.gateway.namespace }}/{{ .Values.gateway.name }}
+  http:
+    - name: primary
+      match:
+        - uri:
+            prefix: /api/
+      route:
+        - destination:
+            host: {{ include "backend-shadow.fullname" . }}-stable
+            port:
+              number: {{ .Values.service.port }}
+          weight: 100
+        - destination:
+            host: {{ include "backend-shadow.fullname" . }}-canary
+            port:
+              number: {{ .Values.service.port }}
+          weight: 0

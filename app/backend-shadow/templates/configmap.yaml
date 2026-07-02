@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "backend-shadow.fullname" . }}
+  labels:
+    {{- include "backend-shadow.labels" . | nindent 4 }}
+data:
+  # nginx:alpine runs envsubst on /etc/nginx/templates/*.template at startup,
+  # rendering to /etc/nginx/conf.d/. $APP_NAME / $APP_VERSION come from the
+  # pod's env, so the version is frozen at pod creation.
+  #
+  # Access log to /dev/stdout in JSON so `kubectl logs` on canary pods
+  # streams every mirrored request in real time — the whole point of the
+  # shadow demo: during Phase 1 the canary pods receive every request, but
+  # their responses are dropped by Istio and clients only see stable.
+  default.conf.template: |
+    log_format shadow escape=json '{'
+      '"time":"$time_iso8601",'
+      '"ver":"${APP_VERSION}",'
+      '"method":"$request_method",'
+      '"uri":"$request_uri",'
+      '"status":$status,'
+      '"xff":"$http_x_forwarded_for",'
+      '"ua":"$http_user_agent"'
+    '}';
+    access_log /dev/stdout shadow;
+
+    server {
+      listen {{ .Values.service.port }};
+      server_name _;
+
+      location = /api/ {
+        default_type application/json;
+        return 200 '{"app":"${APP_NAME}","version":"${APP_VERSION}"}';
+      }
+
+      location = /healthz/ {
+        default_type text/plain;
+        return 200 'ok';
+      }
+    }

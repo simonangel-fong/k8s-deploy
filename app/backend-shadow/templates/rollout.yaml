@@ -1,0 +1,77 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "backend-shadow.fullname" . }}
+  labels:
+    {{- include "backend-shadow.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "backend-shadow.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backend-shadow.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # Env vars are baked into each pod at creation — the new
+          # (canary/shadow) ReplicaSet freezes APP_VERSION at the value
+          # from the manifest that spawned it, so stable pods keep serving
+          # the previous version until they're scaled down after promote.
+          env:
+            - name: APP_NAME
+              value: {{ .Values.api.appName | quote }}
+            - name: APP_VERSION
+              value: {{ .Values.api.version | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            # nginx:alpine's docker-entrypoint runs envsubst on every
+            # *.template in /etc/nginx/templates/ and writes the result to
+            # /etc/nginx/conf.d/ before nginx starts.
+            - name: nginx-conf
+              mountPath: /etc/nginx/templates/default.conf.template
+              subPath: default.conf.template
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: {{ include "backend-shadow.fullname" . }}
+  strategy:
+    canary:
+      # Rollouts patches these Services' selectors at runtime with
+      # rollouts-pod-template-hash to bind stable -> old ReplicaSet,
+      # canary -> new (shadowed) ReplicaSet.
+      stableService: {{ include "backend-shadow.fullname" . }}-stable
+      canaryService: {{ include "backend-shadow.fullname" . }}-canary
+      trafficRouting:
+        istio:
+          virtualServices:
+            # The `primary` route is patched for both mirror config
+            # (setMirrorRoute) and weights (setWeight). One route, two
+            # kinds of mutation across the rollout's phases.
+            - name: {{ include "backend-shadow.fullname" . }}
+              routes:
+                - primary
+      # Manual gate after mirror activation, then auto-ramp through
+      # weighted canary. Final `pause: {}` in steps holds for manual
+      # promote at 50/50.
+      steps:
+        {{- toYaml .Values.shadow.canary.steps | nindent 8 }}
