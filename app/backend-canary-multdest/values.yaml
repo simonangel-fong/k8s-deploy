@@ -1,0 +1,39 @@
+replicaCount: 5
+
+image:
+  repository: nginx
+  tag: alpine
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
+host: deploy.arguswatcher.net
+gateway:
+  namespace: istio-ingress
+  name: demo-gateway
+
+api:
+  appName: demo app - backend-canary-multisvc
+  version: V1.1.13
+
+security:
+  enabled: true
+
+canary:
+  steps:
+    - setWeight: 20
+    - pause: { duration: 1m }
+    - setWeight: 40
+    - pause: { duration: 2m }
+    - setWeight: 80
+    - pause: { duration: 2m }

@@ -1,0 +1,21 @@
+# DestinationRule declares two subsets for Argo Rollouts to target.
+# The baseline label matches ALL backend pods. At runtime Rollouts INJECTS
+# `rollouts-pod-template-hash: <hash>` into each subset — one hash per
+# ReplicaSet — so `stable` binds only to old pods and `canary` only to new
+# ones. The injected hashes are ignored by ArgoCD via ignoreDifferences on
+# /spec/subsets.
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: {{ include "backend.fullname" . }}
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+spec:
+  host: {{ include "backend.fullname" . }}
+  subsets:
+    - name: stable
+      labels:
+        {{- include "backend.selectorLabels" . | nindent 8 }}
+    - name: canary
+      labels:
+        {{- include "backend.selectorLabels" . | nindent 8 }}

@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "backend.fullname" . }}
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backend.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: {{ include "backend.fullname" . }}
+  strategy:
+    canary:
+      # Subset-level routing: Rollouts patches DestinationRule subsets, not Services.
+      # No stableService / canaryService fields when using DestinationRule subsets.
+      trafficRouting:
+        istio:
+          virtualServices:
+            - name: {{ include "backend.fullname" . }}
+              routes:
+                - primary
+          destinationRule:
+            name: {{ include "backend.fullname" . }}
+            stableSubsetName: stable
+            canarySubsetName: canary
+      steps:
+        {{- toYaml .Values.canary.steps | nindent 8 }}
