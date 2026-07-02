@@ -62,11 +62,20 @@ spec:
       stableService: {{ include "backend-shadow.fullname" . }}-stable
       canaryService: {{ include "backend-shadow.fullname" . }}-canary
       trafficRouting:
+        # managedRoutes lists route names that Rollouts is allowed to
+        # inject/remove on the VirtualService via `setMirrorRoute` or
+        # `setHeaderRoute`. Required whenever those step types are used.
+        # The route named here MUST match the `name:` field passed to
+        # setMirrorRoute in `steps` below; Rollouts prepends the managed
+        # route ABOVE the base `primary` route while active, then removes
+        # it when the step's inverse fires.
+        managedRoutes:
+          - name: shadow
         istio:
           virtualServices:
-            # The `primary` route is patched for both mirror config
-            # (setMirrorRoute) and weights (setWeight). One route, two
-            # kinds of mutation across the rollout's phases.
+            # The `primary` route stays declared here for weight patching
+            # (setWeight). The mirror route is added/removed dynamically
+            # by Rollouts using the managedRoutes entry above.
             - name: {{ include "backend-shadow.fullname" . }}
               routes:
                 - primary
