@@ -16,7 +16,7 @@ gateway:
 
 api:
   appName: demo app
-  version: V1.1.5
+  version: V1.1.6
 
 security:
   enabled: true
