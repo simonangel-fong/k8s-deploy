@@ -24,7 +24,7 @@ gateway:
 
 api:
   appName: demo app - rolling
-  version: V5.0.0
+  version: V5.0.1
 
 security:
   enabled: true
