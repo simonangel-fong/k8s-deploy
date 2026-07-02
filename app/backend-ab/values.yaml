@@ -24,7 +24,7 @@ gateway:
 
 api:
   appName: demo app - a/b
-  version: V3.0.1
+  version: V3.0.0
 
 security:
   enabled: true
@@ -41,8 +41,8 @@ ab:
   canary:
     steps:
       - setWeight: 10
-      - pause: { duration: 1m }
-      - setWeight: 25
       - pause: { duration: 2m }
+      - setWeight: 25
+      - pause: { duration: 5m }
       - setWeight: 50
       - pause: {}
