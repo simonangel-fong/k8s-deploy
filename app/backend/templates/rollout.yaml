@@ -32,6 +32,8 @@ spec:
             httpGet:
               path: /healthz/
               port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d/default.conf

@@ -9,6 +9,14 @@ service:
   type: ClusterIP
   port: 80
 
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
 host: deploy.arguswatcher.net
 gateway:
   namespace: istio-ingress
