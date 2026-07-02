@@ -69,8 +69,9 @@ spec:
             - name: {{ include "backend-ab.fullname" . }}
               routes:
                 - primary
-      # Manual promotion — A/B tests usually dwell long enough to gather
-      # signal, so the final step is an unbounded pause.
-      autoPromotionEnabled: false
+      # Manual promotion is achieved by ending `steps` with an unbounded
+      # `- pause: {}` — canary has no autoPromotionEnabled field (that's
+      # blueGreen-only). The rollout parks at the final pause until a human
+      # runs `kubectl argo rollouts promote`.
       steps:
         {{- toYaml .Values.ab.canary.steps | nindent 8 }}
