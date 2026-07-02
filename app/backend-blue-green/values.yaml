@@ -23,8 +23,8 @@ gateway:
   name: demo-gateway
 
 api:
-  appName: demo app
-  version: V1.1.18
+  appName: demo app - blue green
+  version: V2.1.1
 
 security:
   enabled: true
@@ -33,7 +33,7 @@ blueGreen:
   # Header used to route requests to the preview version.
   # e.g. curl -H 'x-preview: true' https://deploy.arguswatcher.net/api/
   previewHeader: x-preview
-  # Soak time on the preview lane before Rollouts auto-flips the active Service.
-  autoPromotionSeconds: 60
-  # Seconds to keep the old ReplicaSet alive after promotion for instant rollback.
+  # Interval to auto-flips the active Service.
+  autoPromotionSeconds: 120
+  # Seconds to keep the old version alive after promotion for instant rollback.
   scaleDownDelaySeconds: 120
