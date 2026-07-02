@@ -34,4 +34,4 @@ blueGreen:
   # e.g. curl -H 'x-preview: true' https://deploy.arguswatcher.net/api/
   previewHeader: x-preview
   # Seconds to keep the old version alive after promotion for instant rollback.
-  scaleDownDelaySeconds: 120
+  scaleDownDelaySeconds: nil
