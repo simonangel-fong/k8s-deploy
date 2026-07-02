@@ -49,10 +49,8 @@ spec:
       # and preview -> new ReplicaSet.
       activeService: {{ include "backend-blue-green.fullname" . }}-active
       previewService: {{ include "backend-blue-green.fullname" . }}-preview
-      # Auto-promotion: after the new ReplicaSet becomes fully available, wait
-      # `autoPromotionSeconds` (soak time on the preview lane), then flip the
-      # active Service to point at it — no manual `promote` needed.
-      autoPromotionEnabled: true
-      autoPromotionSeconds: {{ .Values.blueGreen.autoPromotionSeconds }}
+      # Manual promotion: the new ReplicaSet stays on the preview lane until a
+      # human runs `kubectl argo rollouts promote backend -n backend`.
+      autoPromotionEnabled: false
       # Keep the old ReplicaSet running this long after the flip so aborts are near-instant.
       scaleDownDelaySeconds: {{ .Values.blueGreen.scaleDownDelaySeconds }}

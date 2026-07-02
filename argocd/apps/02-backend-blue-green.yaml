@@ -29,12 +29,12 @@ spec:
     # argo-rollouts injects rollouts-pod-template-hash into selectors
     - group: ""
       kind: Service
-      name: backend-canary
+      name: backend-active
       jsonPointers:
         - /spec/selector
     - group: ""
       kind: Service
-      name: backend-stable
+      name: backend-preview
       jsonPointers:
         - /spec/selector
   syncPolicy:
