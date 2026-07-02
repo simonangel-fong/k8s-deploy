@@ -1,0 +1,6 @@
+apiVersion: v2
+name: backend-blue-green
+description: Demo backend API served by nginx (blue-green rollout demo)
+type: application
+version: 0.1.0
+appVersion: "1.0.0"

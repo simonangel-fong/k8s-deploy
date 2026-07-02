@@ -1,0 +1,41 @@
+# Two Services required by the Argo Rollouts blue-green pattern.
+# Selectors here match ALL backend pods; Rollouts patches each Service's
+# selector at runtime with `rollouts-pod-template-hash: <hash>` to bind
+# active -> current live ReplicaSet, preview -> new ReplicaSet.
+---
+# Active Service — receives production traffic. Flipped to the new ReplicaSet
+# at the moment of promotion. Referenced by Rollout.spec.strategy.blueGreen.activeService.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backend-blue-green.fullname" . }}-active
+  labels:
+    {{- include "backend-blue-green.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "backend-blue-green.selectorLabels" . | nindent 4 }}
+---
+# Preview Service — points at the new ReplicaSet immediately after it becomes
+# available, so testers can hit the new version before flipping production
+# traffic. Referenced by Rollout.spec.strategy.blueGreen.previewService.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backend-blue-green.fullname" . }}-preview
+  labels:
+    {{- include "backend-blue-green.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "backend-blue-green.selectorLabels" . | nindent 4 }}
