@@ -1,4 +1,4 @@
-replicaCount: 5
+replicaCount: 4
 
 image:
   repository: nginx
@@ -31,9 +31,9 @@ security:
 
 canary:
   steps:
-    - setWeight: 20
+    - setWeight: 25
     - pause: { duration: 1m }
-    - setWeight: 40
+    - setWeight: 50
     - pause: { duration: 2m }
-    - setWeight: 80
+    - setWeight: 75
     - pause: { duration: 2m }
