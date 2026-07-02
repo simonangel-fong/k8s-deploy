@@ -48,9 +48,9 @@ while true; do
 done
 
 # 4. When happy, flip production traffic to the new ReplicaSet:
-kubectl argo rollouts promote backend -n backend
+kubectl argo rollouts promote backend-backend-blue-green -n backend
 
 # 5. Old ReplicaSet stays for scaleDownDelaySeconds (120s) — abort within that
 #    window to roll back instantly:
-kubectl argo rollouts undo backend -n backend
+kubectl argo rollouts undo backend-backend-blue-green -n backend
 ```
