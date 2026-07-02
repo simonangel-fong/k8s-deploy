@@ -24,14 +24,16 @@ gateway:
 
 api:
   appName: demo app
-  version: V1.1.15
+  version: V1.1.13
 
 security:
   enabled: true
 
-blueGreen:
-  # Header used to route requests to the preview version.
-  # e.g. curl -H 'x-preview: true' https://deploy.arguswatcher.net/api/
-  previewHeader: x-preview
-  # Seconds to keep the old ReplicaSet alive after promotion for instant rollback.
-  scaleDownDelaySeconds: 120
+canary:
+  steps:
+    - setWeight: 20
+    - pause: { duration: 1m }
+    - setWeight: 40
+    - pause: { duration: 2m }
+    - setWeight: 80
+    - pause: { duration: 2m }

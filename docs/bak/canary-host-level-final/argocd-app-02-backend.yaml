@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-02-backend
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
+    targetRevision: master
+    path: app/backend
+    helm:
+      releaseName: backend
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backend
+  ignoreDifferences:
+    # argo-rollouts mutates weights and route destinations at runtime
+    - group: networking.istio.io
+      kind: VirtualService
+      name: backend
+      jsonPointers:
+        - /spec/http
+    # argo-rollouts injects rollouts-pod-template-hash into selectors
+    - group: ""
+      kind: Service
+      name: backend-canary
+      jsonPointers:
+        - /spec/selector
+    - group: ""
+      kind: Service
+      name: backend-stable
+      jsonPointers:
+        - /spec/selector
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

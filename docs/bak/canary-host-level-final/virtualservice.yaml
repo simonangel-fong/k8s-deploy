@@ -1,0 +1,27 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: {{ include "backend.fullname" . }}
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.host | quote }}
+  gateways:
+    - {{ .Values.gateway.namespace }}/{{ .Values.gateway.name }}
+  http:
+    - name: primary
+      match:
+        - uri:
+            prefix: /api/
+      route:
+        - destination:
+            host: {{ include "backend.fullname" . }}-stable
+            port:
+              number: {{ .Values.service.port }}
+          weight: 100
+        - destination:
+            host: {{ include "backend.fullname" . }}-canary
+            port:
+              number: {{ .Values.service.port }}
+          weight: 0
