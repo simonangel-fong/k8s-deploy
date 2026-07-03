@@ -15,7 +15,7 @@ helm lint app/backend-rolling
 
 # Visualization
 # argocd
-kubectl -n istio-system port-forward svc/kiali 8080:443
+kubectl -n argocd port-forward svc/argocd-server 8080:443
 # argo rollouts
 kubectl -n argo-rollouts port-forward svc/argo-rollouts-dashboard 3100:3100
 # kiali
