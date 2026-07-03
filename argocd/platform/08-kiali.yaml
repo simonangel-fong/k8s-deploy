@@ -4,7 +4,6 @@ metadata:
   name: platform-08-kiali
   namespace: argocd
   annotations:
-    # Sync after prometheus + grafana so Kiali finds its data sources on first start.
     argocd.argoproj.io/sync-wave: "3"
   finalizers:
     - resources-finalizer.argocd.argoproj.io

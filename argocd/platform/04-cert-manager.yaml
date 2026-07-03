@@ -19,11 +19,6 @@ spec:
       values: |
         crds:
           enabled: true
-        config:
-          apiVersion: controller.config.cert-manager.io/v1alpha1
-          kind: ControllerConfiguration
-          featureGates:
-            ExperimentalGatewayAPISupport: true
         webhook:
           validatingWebhookConfigurationAnnotations:
             admissions.enforcer/disabled: "true"
