@@ -46,7 +46,14 @@ while true; do
   echo
   sleep 0.5
 done
-
+# 10:44:27 {"app":"demo app - backend-canary-multisvc","version":"V3.0.0"}
+# 10:44:28 {"app":"demo app - backend-canary-multisvc","version":"V3.1.0"}
+# 10:44:28 {"app":"demo app - backend-canary-multisvc","version":"V3.0.0"}
+# 10:44:29 {"app":"demo app - backend-canary-multisvc","version":"V3.0.0"}
+# 10:44:30 {"app":"demo app - backend-canary-multisvc","version":"V3.0.0"}
+# 10:44:30 {"app":"demo app - backend-canary-multisvc","version":"V3.0.0"}
+# 10:44:31 {"app":"demo app - backend-canary-multisvc","version":"V3.1.0"}
+# 10:44:32 {"app":"demo app - backend-canary-multisvc","version":"V3.1.0"}
 ```
 
 ![canary: argorollout gif](./img/canary_argorollout.gif)

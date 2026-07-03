@@ -33,5 +33,5 @@ blueGreen:
   # Header used to route requests to the preview version.
   # e.g. curl -H 'x-preview: true' https://deploy.arguswatcher.net/api/
   previewHeader: x-preview
-  # Seconds to keep the old version alive after promotion for instant rollback.
+  # keep the old version alive after promotion for instant rollback.
   scaleDownDelaySeconds: 600

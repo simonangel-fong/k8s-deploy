@@ -1,0 +1,33 @@
+# Active Service: receives production traffic.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backend-blue-green.fullname" . }}-active
+  labels:
+    {{- include "backend-blue-green.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "backend-blue-green.selectorLabels" . | nindent 4 }}
+---
+# Preview Service — points at the new ReplicaSet immediately after it becomes available
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backend-blue-green.fullname" . }}-preview
+  labels:
+    {{- include "backend-blue-green.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "backend-blue-green.selectorLabels" . | nindent 4 }}

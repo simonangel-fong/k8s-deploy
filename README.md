@@ -118,11 +118,13 @@ shadow
 
 ![canary: argorollout gif](./docs/img/canary_argorollout.gif)
 
+> rollout control by seting weight
+
 - Traffic splitting
 
-![canary: kiali gif](./docs/img/canary_kiali01.gif)
-![canary: kiali gif](./docs/img/canary_kiali02.gif)
-![canary: kiali gif](./docs/img/canary_kiali03.gif)
+![canary: kiali gif](./docs/img/canary_kiali.gif)
+
+> traffic splits from 25%, 50%, to 100%.
 
 ---
 
@@ -215,5 +217,5 @@ Does the workload require zero concurrent versions?
 
 - [Web Application with Helm](docs/01-app.md)
 - [Infrastructure as Code via Terraform](docs/02-infra.md)
-- [ArgoCD](docs/03-argocd.md): add sync; terraform; 
+- [ArgoCD](docs/03-argocd.md): add sync; terraform;
 - [Network Layer by Istio](docs/04-istio.md)

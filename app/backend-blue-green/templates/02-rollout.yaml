@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "backend-blue-green.fullname" . }}
+  labels:
+    {{- include "backend-blue-green.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "backend-blue-green.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backend-blue-green.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/01-configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: APP_NAME
+              value: {{ .Values.api.appName | quote }}
+            - name: APP_VERSION
+              value: {{ .Values.api.version | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/templates/default.conf.template
+              subPath: default.conf.template
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: {{ include "backend-blue-green.fullname" . }}
+  strategy:
+    blueGreen:
+      activeService: {{ include "backend-blue-green.fullname" . }}-active
+      previewService: {{ include "backend-blue-green.fullname" . }}-preview
+      autoPromotionEnabled: false
+      scaleDownDelaySeconds: {{ .Values.blueGreen.scaleDownDelaySeconds }}

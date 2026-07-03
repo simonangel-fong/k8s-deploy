@@ -1,8 +1,8 @@
-# Deployment - Blue-Green: Header-based Preview Lane
+# Deployment - Blue-Green
 
 [Back](../README.md)
 
-- [Deployment - Blue-Green: Header-based Preview Lane](#deployment---blue-green-header-based-preview-lane)
+- [Deployment - Blue-Green](#deployment---blue-green)
   - [Preparation](#preparation)
   - [Rollout](#rollout)
 
@@ -12,12 +12,16 @@
 
 ```sh
 helm lint app/backend-blue-green
+# ==> Linting app/backend-blue-green
+# [INFO] Chart.yaml: icon is recommended
+
+# 1 chart(s) linted, 0 chart(s) failed
 
 # Visualization
 # argocd
 kubectl -n argocd port-forward svc/argocd-server 8080:443
 # argo rollouts
-kubectl -n argo-rollouts port-forward svc/argo-rollouts-dashboard 3100:3100
+kubectl -n argo-rollouts port-forward svc/argo-rollouts-dashboard 31000:3100
 # kiali
 kubectl -n istio-system port-forward svc/kiali 20001:20001
 # grafana
@@ -29,11 +33,11 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 ## Rollout
 
 ```sh
-# Watch the rollout status
-kubectl argo rollouts get rollout backend -n backend -w
+# sync app
+argocd app sync app-02-backend-canary-multisvc
 
-# 1. Trigger a new version by editing app/backend-blue-green/values.yaml (api.version)
-#    and letting Argo CD sync. The new ReplicaSet comes up on the preview lane.
+# confirm pod transitions
+kubectl get po -n backend -l app.kubernetes.io/name=backend-canary-multisvc -w
 
 # 2. Active lane still serves the old version:
 while true; do
