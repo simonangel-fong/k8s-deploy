@@ -1,8 +1,3 @@
-# Single Service — RollingUpdate has no notion of stable/canary/preview,
-# so there's only one traffic destination. During a rollout the Service's
-# selector matches BOTH old-RS and new-RS pods; kube-proxy load-balances
-# across whichever ones are Ready, so clients see a gradient of
-# old-version to new-version responses over the rollout window.
 apiVersion: v1
 kind: Service
 metadata:

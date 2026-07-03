@@ -1,8 +1,3 @@
-# Trivial VirtualService — single route, single destination, no weighting.
-# Istio is present here only for mTLS + AuthorizationPolicy consistency
-# with the other charts. There's no traffic-splitting because
-# RollingUpdate doesn't distinguish versions at the routing layer;
-# every request just goes to "the Service" and kube-proxy picks a pod.
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:

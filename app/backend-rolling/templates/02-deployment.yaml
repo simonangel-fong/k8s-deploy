@@ -1,8 +1,3 @@
-# Plain k8s Deployment with RollingUpdate strategy — no Argo Rollouts,
-# no traffic manipulation. The Deployment controller manages the
-# transition between ReplicaSets directly: create surge pods, wait for
-# Ready, terminate old pods, repeat. Clients see a mixed pool during
-# the rollout window.
 apiVersion: apps/v1
 kind: Deployment
 metadata:

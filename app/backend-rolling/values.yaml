@@ -1,3 +1,4 @@
+# values.yaml
 replicaCount: 4
 
 image:
@@ -30,12 +31,5 @@ security:
   enabled: true
 
 rolling:
-  # maxSurge — extra pods above desired that may be created during a rollout.
-  # 25% at 4 replicas rounds up to 1 surge pod at a time.
-  maxSurge: 25%
-  # maxUnavailable: 0 keeps capacity at 100% throughout the rollout — the
-  # Deployment controller must wait for a new pod to be Ready before it
-  # terminates an old one. Trade: rollout takes marginally longer.
-  # The k8s default of 25% dips capacity by 1 pod at 4 replicas, which is
-  # rarely what you want for user-facing services.
-  maxUnavailable: 0
+  maxSurge: 25% # extra pods above desired
+  maxUnavailable: 0 # zero unavailable
