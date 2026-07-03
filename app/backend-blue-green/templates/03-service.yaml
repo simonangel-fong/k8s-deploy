@@ -1,4 +1,8 @@
 # Active Service: receives production traffic.
+# spec.selector is intentionally omitted — the rollouts controller owns the
+# whole selector map at runtime. Rendering selectorLabels here causes Argo CD
+# Server-Side Apply to co-own spec.selector and strip the rollouts-pod-template-hash
+# key on every sync, which fast-tracks the rollout past the manual-promotion pause.
 apiVersion: v1
 kind: Service
 metadata:
@@ -12,10 +16,9 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-  selector:
-    {{- include "backend-blue-green.selectorLabels" . | nindent 4 }}
 ---
-# Preview Service — points at the new ReplicaSet immediately after it becomes available
+# Preview Service — points at the new ReplicaSet immediately after it becomes available.
+# spec.selector intentionally omitted (see comment on active Service above).
 apiVersion: v1
 kind: Service
 metadata:
@@ -29,5 +32,3 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
-  selector:
-    {{- include "backend-blue-green.selectorLabels" . | nindent 4 }}
