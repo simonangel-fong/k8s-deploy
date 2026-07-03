@@ -24,7 +24,7 @@ gateway:
 
 api:
   appName: demo app - shadow
-  version: V6.1.0
+  version: V6.0.0
 
 security:
   enabled: true
@@ -48,6 +48,6 @@ shadow:
       - setCanaryScale:
           matchTrafficWeight: true
       - setWeight: 10
-      - pause: { duration: 2m }
+      - pause: { duration: 1m }
       - setWeight: 50
-      - pause: {}
+      - pause: { duration: 1m }

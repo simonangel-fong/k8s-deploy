@@ -44,12 +44,13 @@ while true; do
   sleep 0.5
 done
 
-kubectl -n backend logs -f -l app.kubernetes.io/name=backend-shadow,rollouts-pod-template-hash=<CANARY_HASH> --prefix=true --tail=0
-# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] 127.0.0.6 - - [02/Jul/2026:19:18:45 +0000] "GET /api/ HTTP/1.1" 200 46 "-" "curl/8.5.0" "99.243.74.50,10.10.0.4,10.244.0.141"
-# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] {"time":"2026-07-02T19:18:45+00:00","ver":"V4.0.1","method":"GET","uri":"/api/","status":200,"xff":"99.243.74.50,10.10.0.4,10.244.0.141","ua":"curl/8.5.0"}
-# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] 127.0.0.6 - - [02/Jul/2026:19:18:46 +0000] "GET /api/ HTTP/1.1" 200 46 "-" "curl/8.5.0" "99.243.74.50,10.10.0.5,10.244.0.141"
-# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] {"time":"2026-07-02T19:18:46+00:00","ver":"V4.0.1","method":"GET","uri":"/api/","status":200,"xff":"99.243.74.50,10.10.0.5,10.244.0.141","ua":"curl/8.5.0"}
-# [pod/backend-shadow-59f868b86b-pjj27/backend-shadow] 127.0.0.6 - - [02/Jul/2026:19:18:47 +0000] "GET /api/ HTTP/1.1" 200 46 "-" "curl/8.5.0" "99.243.74.50,10.10.0.5,10.244.0.141"
+# get shadow pod log: confirm request
+kubectl -n backend logs -f -l app.kubernetes.io/name=backend-shadow,rollouts-pod-template-hash=<CANARY_HASH> --prefix=true --tail=0 | grep api
+# [pod/backend-shadow-f68675bcd-x87hb/backend-shadow] 127.0.0.6 - - [03/Jul/2026:20:13:53 +0000] "GET /api/ HTTP/1.1" 200 46 "-" "curl/8.5.0" "99.243.74.50,10.10.0.5,10.244.0.119"
+# [pod/backend-shadow-f68675bcd-x87hb/backend-shadow] {"time":"2026-07-03T20:13:53+00:00","ver":"V6.1.0","method":"GET","uri":"/api/","status":200,"xff":"99.243.74.50,10.10.0.5,10.244.0.119","ua":"curl/8.5.0"}
+# [pod/backend-shadow-f68675bcd-x87hb/backend-shadow] 127.0.0.6 - - [03/Jul/2026:20:13:54 +0000] "GET /api/ HTTP/1.1" 200 46 "-" "curl/8.5.0" "99.243.74.50,10.10.0.5,10.244.0.119"
+# [pod/backend-shadow-f68675bcd-x87hb/backend-shadow] {"time":"2026-07-03T20:13:54+00:00","ver":"V6.1.0","method":"GET","uri":"/api/","status":200,"xff":"99.243.74.50,10.10.0.5,10.244.0.119","ua":"curl/8.5.0"}
+# [pod/backend-shadow-f68675bcd-d5lv7/backend-shadow] 127.0.0.6 - - [03/Jul/2026:20:13:54 +0000] "GET /api/ HTTP/1.1" 200 46 "-" "curl/8.5.0" "99.243.74.50,10.10.0.4,10.244.0.119"
 
 # When satisfied, promote to advance past the manual gate
 kubectl argo rollouts promote backend-shadow -n backend
@@ -63,3 +64,9 @@ kubectl argo rollouts promote backend-shadow -n backend    # or `undo`
 ![shadow: argorollout gif](./img/shadow_argorollout.gif)
 
 ![shadow: log](./img/shadow_preview.png)
+
+
+
+rollouts-pod-template-hash=67b95f5bd5,security.istio.io/tlsMode=istio,service.istio.io/canonical-name=backend-shadow,service.istio.io/canonical-revision=1.0.0,topology.kubernetes.io/region=canadacentral,topology.kubernetes.io/zone=0
+
+rollouts-pod-template-hash=f68675bcd,security.istio.io/tlsMode=istio,service.istio.io/canonical-name=backend-shadow,service.istio.io/canonical-revision=1.0.0,topology.kubernetes.io/region=canadacentral,topology.kubernetes.io/zone=0
