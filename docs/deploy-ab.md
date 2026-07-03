@@ -39,9 +39,12 @@ kubectl argo rollouts promote backend-ab -n backend
 # sync app
 argocd app sync app-02-backend-ab
 
-# confirm pod transitions
-kubectl get po -n backend -l app.kubernetes.io/name=backend-backend-blue-green -w
-
+# variant-b request
+while true; do
+  printf '%s variant-b ' "$(date +%T)"
+  curl -sw '\n' -H 'x-variant: b' https://deploy.arguswatcher.net/api/
+  sleep 0.5
+done
 
 # constant traffic
 while true; do
@@ -59,19 +62,14 @@ done
 # 14:12:42 variant a&b {"app":"demo app - a/b","version":"V3.0.0"}
 # 14:12:43 variant a&b {"app":"demo app - a/b","version":"V3.0.1"}
 
-# variant-b request
-while true; do
-  printf '%s variant-b ' "$(date +%T)"
-  curl -sw '\n' -H 'x-variant: b' https://deploy.arguswatcher.net/api/
-  sleep 0.5
-done
-# 14:11:10 variant-b {"app":"demo app - a/b","version":"V3.0.1"}
-# 14:11:11 variant-b {"app":"demo app - a/b","version":"V3.0.1"}
-# 14:11:12 variant-b {"app":"demo app - a/b","version":"V3.0.1"}
-# 14:11:12 variant-b {"app":"demo app - a/b","version":"V3.0.1"}
-
-
+# testing completed
 kubectl argo rollouts undo backend-ab -n backend
 # rollout 'backend-ab' undo
 
 ```
+
+![ab: argorollout gif](./img/ab_argorollout.gif)
+
+![ab: preview](./img/ab_preview.png)
+
+![ab: kiali](./img/ab_kiali.png)
