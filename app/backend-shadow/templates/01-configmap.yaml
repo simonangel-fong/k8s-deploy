@@ -5,14 +5,6 @@ metadata:
   labels:
     {{- include "backend-shadow.labels" . | nindent 4 }}
 data:
-  # nginx:alpine runs envsubst on /etc/nginx/templates/*.template at startup,
-  # rendering to /etc/nginx/conf.d/. $APP_NAME / $APP_VERSION come from the
-  # pod's env, so the version is frozen at pod creation.
-  #
-  # Access log to /dev/stdout in JSON so `kubectl logs` on canary pods
-  # streams every mirrored request in real time — the whole point of the
-  # shadow demo: during Phase 1 the canary pods receive every request, but
-  # their responses are dropped by Istio and clients only see stable.
   default.conf.template: |
     log_format shadow escape=json '{'
       '"time":"$time_iso8601",'

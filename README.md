@@ -172,15 +172,16 @@ shadow
     - Targeted rollout to beta users, internal testers, or a specific region.
     - Comparing UX or algorithm changes with statistically meaningful cohorts.
 
-![ab-test: argorollout gif](./docs/img/ab_test_argorollout.gif)
+- **Argo Rollouts UI**:
 
-- Traffic splitting
+![ab: argorollout gif](./docs/img/ab_argorollout.gif)
 
-![ab-test: kiali gif](./docs/img/ab_test_kiali01.gif)
-![ab-test: kiali gif](./docs/img/ab_test_kiali02.gif)
-![ab-test: kiali gif](./docs/img/ab_test_kiali03.gif)
+- headed preview vs stable
 
-![ab-test: curl gif](./docs/img/ab_test_curl.gif)
+![ab: preview](./docs/img/ab_preview.png)
+
+> Table traffic hit both versions randomly
+> headed request hits preview version
 
 ---
 
@@ -193,6 +194,8 @@ shadow
     - Performance and load testing under real production traffic patterns.
     - Validating a rewritten or refactored service against the incumbent for behavioral parity.
     - Safely exercising risky changes (new database driver, dependency upgrade) with zero user impact.
+
+- **Argo Rollouts UI**:
 
 ![shadow: argorollout gif](./docs/img/shadow_argorollout.gif)
 

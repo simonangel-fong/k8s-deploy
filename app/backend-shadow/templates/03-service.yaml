@@ -1,10 +1,4 @@
-# Two Services required by the Argo Rollouts + Istio canary pattern.
-# Selectors here match ALL backend pods; Rollouts patches each Service's
-# selector at runtime with `rollouts-pod-template-hash: <hash>` to bind
-# stable -> current live ReplicaSet, canary -> new (shadowed) ReplicaSet.
----
-# Stable Service — receives all client-visible traffic while the shadow
-# phase is active. Referenced by Rollout.spec.strategy.canary.stableService.
+# Stable Service: receives all client-visible traffic
 apiVersion: v1
 kind: Service
 metadata:
@@ -21,9 +15,7 @@ spec:
   selector:
     {{- include "backend-shadow.selectorLabels" . | nindent 4 }}
 ---
-# Canary Service — receives MIRRORED traffic during Phase 1 (responses
-# discarded by Istio), then real weighted traffic during Phase 3.
-# Referenced by Rollout.spec.strategy.canary.canaryService.
+# Canary Service: receives MIRRORED traffic
 apiVersion: v1
 kind: Service
 metadata:

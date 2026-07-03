@@ -1,50 +1,50 @@
-# backend-ab.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: app-02-backend-ab
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "10"
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
-    targetRevision: master
-    helm:
-      releaseName: backend-ab
-    path: app/backend-ab
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: backend
-  ignoreDifferences:
-    # argo-rollouts mutates weights on the `primary` route at every canary step
-    - group: networking.istio.io
-      kind: VirtualService
-      name: backend-ab
-      jsonPointers:
-        - /spec/http
-    # argo-rollouts patches rollouts-pod-template-hash into these Service selectors at runtime. 
-    - group: ""
-      kind: Service
-      name: backend-ab-stable
-      jsonPointers:
-        - /spec/selector
-      managedFieldsManagers:
-        - argo-rollouts
-    - group: ""
-      kind: Service
-      name: backend-ab-canary
-      jsonPointers:
-        - /spec/selector
-      managedFieldsManagers:
-        - argo-rollouts
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+# # backend-ab.yaml
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: app-02-backend-ab
+#   namespace: argocd
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "10"
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
+#     targetRevision: master
+#     helm:
+#       releaseName: backend-ab
+#     path: app/backend-ab
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: backend
+#   ignoreDifferences:
+#     # argo-rollouts mutates weights on the `primary` route at every canary step
+#     - group: networking.istio.io
+#       kind: VirtualService
+#       name: backend-ab
+#       jsonPointers:
+#         - /spec/http
+#     # argo-rollouts patches rollouts-pod-template-hash into these Service selectors at runtime. 
+#     - group: ""
+#       kind: Service
+#       name: backend-ab-stable
+#       jsonPointers:
+#         - /spec/selector
+#       managedFieldsManagers:
+#         - argo-rollouts
+#     - group: ""
+#       kind: Service
+#       name: backend-ab-canary
+#       jsonPointers:
+#         - /spec/selector
+#       managedFieldsManagers:
+#         - argo-rollouts
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true

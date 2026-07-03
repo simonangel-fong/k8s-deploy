@@ -14,16 +14,12 @@ spec:
       labels:
         {{- include "backend-shadow.labels" . | nindent 8 }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/01-configmap.yaml") . | sha256sum }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          # Env vars are baked into each pod at creation — the new
-          # (canary/shadow) ReplicaSet freezes APP_VERSION at the value
-          # from the manifest that spawned it, so stable pods keep serving
-          # the previous version until they're scaled down after promote.
           env:
             - name: APP_NAME
               value: {{ .Values.api.appName | quote }}
@@ -44,9 +40,6 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            # nginx:alpine's docker-entrypoint runs envsubst on every
-            # *.template in /etc/nginx/templates/ and writes the result to
-            # /etc/nginx/conf.d/ before nginx starts.
             - name: nginx-conf
               mountPath: /etc/nginx/templates/default.conf.template
               subPath: default.conf.template
@@ -56,19 +49,9 @@ spec:
             name: {{ include "backend-shadow.fullname" . }}
   strategy:
     canary:
-      # Rollouts patches these Services' selectors at runtime with
-      # rollouts-pod-template-hash to bind stable -> old ReplicaSet,
-      # canary -> new (shadowed) ReplicaSet.
       stableService: {{ include "backend-shadow.fullname" . }}-stable
       canaryService: {{ include "backend-shadow.fullname" . }}-canary
       trafficRouting:
-        # managedRoutes lists route names that Rollouts is allowed to
-        # inject/remove on the VirtualService via `setMirrorRoute` or
-        # `setHeaderRoute`. Required whenever those step types are used.
-        # The route named here MUST match the `name:` field passed to
-        # setMirrorRoute in `steps` below; Rollouts prepends the managed
-        # route ABOVE the base `primary` route while active, then removes
-        # it when the step's inverse fires.
         managedRoutes:
           - name: shadow
         istio:
@@ -79,8 +62,5 @@ spec:
             - name: {{ include "backend-shadow.fullname" . }}
               routes:
                 - primary
-      # Manual gate after mirror activation, then auto-ramp through
-      # weighted canary. Final `pause: {}` in steps holds for manual
-      # promote at 50/50.
       steps:
         {{- toYaml .Values.shadow.canary.steps | nindent 8 }}

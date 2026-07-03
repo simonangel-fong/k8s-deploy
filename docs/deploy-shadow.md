@@ -11,18 +11,24 @@
 ## Preparation
 
 ```sh
-helm lint app/backend-ab
+helm lint app/backend-shadow
+# ==> Linting app/backend-shadow
+# [INFO] Chart.yaml: icon is recommended
+
+# 1 chart(s) linted, 0 chart(s) failed
 
 # Visualization
 # argocd
 kubectl -n argocd port-forward svc/argocd-server 8080:443
 # argo rollouts
-kubectl -n argo-rollouts port-forward svc/argo-rollouts-dashboard 3100:3100
+kubectl -n argo-rollouts port-forward svc/argo-rollouts-dashboard 31000:3100
 # kiali
 kubectl -n istio-system port-forward svc/kiali 20001:20001
 # grafana
 kubectl -n istio-system port-forward svc/grafana 3000:3000
 ```
+
+---
 
 ---
 
