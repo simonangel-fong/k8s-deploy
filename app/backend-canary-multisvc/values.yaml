@@ -24,7 +24,7 @@ gateway:
 
 api:
   appName: demo app - backend-canary-multisvc
-  version: V3.1.0
+  version: V3.0.0
 
 security:
   enabled: true
@@ -34,6 +34,4 @@ canary:
     - setWeight: 25
     - pause: { duration: 1m }
     - setWeight: 50
-    - pause: { duration: 2m }
-    - setWeight: 75
-    - pause: { duration: 2m }
+    - pause: { duration: 1m }
