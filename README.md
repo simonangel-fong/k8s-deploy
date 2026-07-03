@@ -58,8 +58,12 @@ Deployment is a critical process: it makes an application available in a live en
     - Old and new versions run simultaneously, so the app must be backward-compatible.
     - Rollback is another rolling update, not an instant switch.
 
-![rollingupdate: argocd gif](./docs/img/rollingupdate_argocd.gif)
-![rollingupdate: curl gif](./docs/img/rollingupdate_curl.gif)
+- **ArgoCD UI**:
+
+![rolling: argocd gif](./docs/img/rolling_argocd.gif)
+
+
+![rolling: curl gif](./docs/img/rolling_curl.gif)
 
 ---
 

@@ -1,8 +1,8 @@
-# Kubernetes Deployment Playbook: Infrastructure as Code with Terraform
+# Kubernetes Deployment Playbook: `Infrastructure as Code` with `Terraform`
 
 [Back](../README.md)
 
-- [Kubernetes Deployment Playbook: Infrastructure as Code with Terraform](#kubernetes-deployment-playbook-infrastructure-as-code-with-terraform)
+- [Kubernetes Deployment Playbook: `Infrastructure as Code` with `Terraform`](#kubernetes-deployment-playbook-infrastructure-as-code-with-terraform)
   - [AKS - Design](#aks---design)
   - [Development](#development)
     - [Terraform](#terraform)
@@ -54,3 +54,5 @@ kubectl get node
 # aks-default-67386939-vmss000000   Ready    <none>   10h   v1.35.5
 # aks-default-67386939-vmss000001   Ready    <none>   10h   v1.35.5
 ```
+
+![pic](./img/aks01.png)

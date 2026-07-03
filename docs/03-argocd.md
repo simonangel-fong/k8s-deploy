@@ -30,3 +30,9 @@ argocd login localhost:8080
 argocd app list
 
 ```
+
+---
+
+![argocd_ui](./img/argocd_ui01.png)
+
+![argocd_cli](./img/argocd_cli01.png)
