@@ -1,31 +1,31 @@
-# backend-recreate.yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: app-02-backend-recreate
-  namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "10"
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
-    targetRevision: master
-    helm:
-      releaseName: backend-recreate
-    path: app/backend-recreate
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: backend
-  # No ignoreDifferences — this is a plain Deployment. Nothing mutates
-  # cluster state at runtime, so ArgoCD's rendered manifest matches the
-  # live state exactly.
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+# # backend-recreate.yaml
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: app-02-backend-recreate
+#   namespace: argocd
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "10"
+#   finalizers:
+#     - resources-finalizer.argocd.argoproj.io
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.com/simonangel-fong/argocd-argorollout-istio
+#     targetRevision: master
+#     helm:
+#       releaseName: backend-recreate
+#     path: app/backend-recreate
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: backend
+#   # No ignoreDifferences — this is a plain Deployment. Nothing mutates
+#   # cluster state at runtime, so ArgoCD's rendered manifest matches the
+#   # live state exactly.
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true

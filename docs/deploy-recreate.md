@@ -39,4 +39,23 @@ while true; do
     https://deploy.arguswatcher.net/api/
   sleep 0.5
 done
+
+# 15:55:34 {"app":"demo app - recreate","version":"V6.0.0"}
+# 15:55:35 {"app":"demo app - recreate","version":"V6.0.0"}
+# 15:55:36 {"app":"demo app - recreate","version":"V6.0.0"}
+# 15:55:36 {"app":"demo app - recreate","version":"V6.0.0"}
+# 15:55:37 no healthy upstream
+# 15:55:37 no healthy upstream
+# 15:55:38 no healthy upstream
+# 15:55:39 no healthy upstream
+# 15:55:39 no healthy upstream
+# 15:55:40 no healthy upstream
+# 15:55:40 no healthy upstream
+# 15:55:41 no healthy upstream
+# 15:55:42 {"app":"demo app - recreate","version":"V6.0.1"}
+# 15:55:42 {"app":"demo app - recreate","version":"V6.0.1"}
+# 15:55:43 {"app":"demo app - recreate","version":"V6.0.1"}
+# 15:55:44 {"app":"demo app - recreate","version":"V6.0.1"}
+# 15:55:44 {"app":"demo app - recreate","version":"V6.0.1"}
+
 ```

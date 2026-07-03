@@ -1,4 +1,19 @@
-# App Plan
+# Kubernetes Deployment Playbook: Web Application
+
+[Back](../README.md)
+
+- [Kubernetes Deployment Playbook: Web Application](#kubernetes-deployment-playbook-web-application)
+  - [Goal](#goal)
+  - [Scope](#scope)
+  - [Backend](#backend)
+  - [Frontend](#frontend)
+  - [Development Phases](#development-phases)
+    - [Phase 01 — Backend skeleton](#phase-01--backend-skeleton)
+    - [Phase 02 — Backend API](#phase-02--backend-api)
+    - [Phase 03 — Frontend](#phase-03--frontend)
+  - [Key Commands](#key-commands)
+
+---
 
 ## Goal
 
@@ -40,7 +55,7 @@ Version is switched via image tag / chart value, not by routing.
 
 ---
 
-## Phases
+## Development Phases
 
 ### Phase 01 — Backend skeleton
 
@@ -65,46 +80,23 @@ Version is switched via image tag / chart value, not by routing.
 
 ---
 
-## Development
-
-### Phase 01 — Backend skeleton
+## Key Commands
 
 ```sh
-mkdir -pv app/backend
-
-helm create app/backend
-# Creating app/backend
-
-cd app/backend/templates
-rm hpa.yaml ingress.yaml serviceaccount.yaml NOTES.txt
-rm -r tests/
-cd -
-
+# ####################
+# backend
+# ####################
+# generate manifests
+helm template backend app/frontend
+# lint check
 helm lint app/backend
 
-helm install backend app/backend -n backend --create-namespace
+# install
+helm upgrade -i backend app/backend -n backend --create-namespace
 
 # confirm
 helm status backend -n backend
 kubectl get pods,svc -n backend
-kubectl port-forward -n backend svc/backend 8080:80
-
-# Cleanup between iterations
-helm uninstall backend -n backend
-```
-
-### Phase 02 — Backend API
-
-```sh
-helm template backend app/backend
-
-helm lint app/backend
-
-# Upgrade the release from Phase 01
-helm upgrade backend app/backend -n backend
-
-# confirm
-kubectl rollout status deploy/backend -n backend
 kubectl port-forward -n backend svc/backend 8080:80
 
 # in another shell
@@ -114,33 +106,35 @@ curl -s http://localhost:8080/healthz/
 # ok
 
 # switch to v2 without editing values.yaml
-helm upgrade backend app/backend -n backend --set api.version=V2.0.0
+helm upgrade -i backend app/backend -n backend --set api.version=V2.0.0
 curl -s http://localhost:8080/api/
 # {"app":"demo app","version":"V2.0.0"}
-```
 
-### Phase 03 — Frontend
 
-Frontend nginx serves `index.html` and proxies `/api/` to the backend service (same-origin, no CORS).
-`backend.host` defaults to `backend` — assumes frontend runs in the same namespace as the backend service.
-
-```sh
+# ####################
+# frontend
+# ####################
+# generate manifests
 helm template frontend app/frontend
-
+# lint check
 helm lint app/frontend
 
-# install alongside backend (same namespace so DNS resolves)
-helm install frontend app/frontend -n backend
+# install
+helm upgrade -i frontend app/frontend -n frontend --create-namespace
 
 # confirm
-kubectl rollout status deploy/frontend -n backend
-kubectl port-forward -n backend svc/frontend 8081:80
+helm status frontend -n frontend
+kubectl rollout status deploy/frontend -n frontend
+kubectl port-forward -n frontend svc/frontend 8081:80
 
-# browser: http://localhost:8081 → shows "demo app" + version from backend
-# or from CLI:
-curl -s http://localhost:8081/          # HTML page
-curl -s http://localhost:8081/api/      # proxied to backend
-curl -s http://localhost:8081/healthz/  # ok
+curl -s http://localhost:8081/
+# HTML page
+curl -s http://localhost:8081/api/
+# proxied to backend
+curl -s http://localhost:8081/healthz/
+# ok
 
-
+# Cleanup between iterations
+helm uninstall backend -n backend
+helm uninstall frontend -n frontend
 ```
