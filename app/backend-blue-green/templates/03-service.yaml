@@ -16,6 +16,8 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+  selector:
+    {{- include "backend-blue-green.selectorLabels" . | nindent 4 }}
 ---
 # Preview Service — points at the new ReplicaSet immediately after it becomes available.
 # spec.selector intentionally omitted (see comment on active Service above).
@@ -32,3 +34,5 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+  selector:
+    {{- include "backend-blue-green.selectorLabels" . | nindent 4 }}
