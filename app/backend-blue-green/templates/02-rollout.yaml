@@ -52,4 +52,4 @@ spec:
       activeService: {{ include "backend-blue-green.fullname" . }}-active
       previewService: {{ include "backend-blue-green.fullname" . }}-preview
       autoPromotionEnabled: false
-      {% comment %} scaleDownDelaySeconds: {{ .Values.blueGreen.scaleDownDelaySeconds }} {% endcomment %}
+      # scaleDownDelaySeconds: {{ .Values.blueGreen.scaleDownDelaySeconds }}
