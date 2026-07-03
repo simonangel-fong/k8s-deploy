@@ -40,27 +40,20 @@ kubectl argo rollouts promote backend-ab -n backend
 argocd app sync app-02-backend-ab
 
 # variant-b request
-while true; do
+for i in {1..10}
+do
   printf '%s variant-b ' "$(date +%T)"
   curl -sw '\n' -H 'x-variant: b' https://deploy.arguswatcher.net/api/
-  sleep 0.5
+  sleep 1
 done
 
 # constant traffic
-while true; do
+for i in {1..10}
+do
   printf '%s stable ' "$(date +%T)"
   curl -sw '\n' https://deploy.arguswatcher.net/api/
-  sleep 0.5
+  sleep 1
 done
-# 14:12:38 variant a&b {"app":"demo app - a/b","version":"V3.0.0"}
-# 14:12:38 variant a&b {"app":"demo app - a/b","version":"V3.0.0"}
-# 14:12:39 variant a&b {"app":"demo app - a/b","version":"V3.0.1"}
-# 14:12:40 variant a&b {"app":"demo app - a/b","version":"V3.0.1"}
-# 14:12:40 variant a&b {"app":"demo app - a/b","version":"V3.0.1"}
-# 14:12:41 variant a&b {"app":"demo app - a/b","version":"V3.0.0"}
-# 14:12:42 variant a&b {"app":"demo app - a/b","version":"V3.0.0"}
-# 14:12:42 variant a&b {"app":"demo app - a/b","version":"V3.0.0"}
-# 14:12:43 variant a&b {"app":"demo app - a/b","version":"V3.0.1"}
 
 # testing completed
 kubectl argo rollouts undo backend-ab -n backend
