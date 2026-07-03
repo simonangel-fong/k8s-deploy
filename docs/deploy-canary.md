@@ -1,8 +1,8 @@
-# Deployment - Canary: Host-level Traffic Splitting
+# Deployment - Canary(Host-level Traffic Splitting)
 
 [Back](../README.md)
 
-- [Deployment - Canary: Host-level Traffic Splitting](#deployment---canary-host-level-traffic-splitting)
+- [Deployment - Canary(Host-level Traffic Splitting)](#deployment---canaryhost-level-traffic-splitting)
   - [Preparation](#preparation)
   - [Rollout](#rollout)
 
@@ -12,13 +12,16 @@
 
 ```sh
 helm lint app/backend-canary-multisvc
-helm lint app/backend-canary-multdest
+# ==> Linting app/backend-canary-multisvc
+# [INFO] Chart.yaml: icon is recommended
+
+# 1 chart(s) linted, 0 chart(s) failed
 
 # Visualization
 # argocd
 kubectl -n istio-system port-forward svc/kiali 8080:443
 # argo rollouts
-kubectl -n argo-rollouts port-forward svc/argo-rollouts-dashboard 3100:3100
+kubectl -n argo-rollouts port-forward svc/argo-rollouts-dashboard 31000:3100
 # kiali
 kubectl -n istio-system port-forward svc/kiali 20001:20001
 # grafana
@@ -30,13 +33,23 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 ## Rollout
 
 ```sh
-# canary
-kubectl argo rollouts promote backend -n backend
+# sync app
+argocd app sync app-02-backend-canary-multisvc
 
+# confirm pod transitions
+kubectl get po -n backend -l app.kubernetes.io/name=backend-canary-multisvc -w
+
+# Terminal 2: measure the outage window
 while true; do
-  curl https://deploy.arguswatcher.net/api/
-  echo
+  printf '%s ' "$(date +%T)"
+  curl -s -o /dev/null -w '%{http_code} %{time_total}s\n' \
+    https://deploy.arguswatcher.net/api/
   sleep 0.5
 done
 
+
 ```
+
+![canary: argorollout gif](./img/canary_argorollout.gif)
+
+![canary: kiali gif](./img/canary_kiali.gif)
