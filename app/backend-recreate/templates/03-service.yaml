@@ -1,7 +1,3 @@
-# Single Service — Recreate has no notion of stable/canary/preview.
-# During a rollout the Service's endpoints briefly drop to zero (all old
-# pods terminated, no new pods Ready yet). Clients get 503s or connection
-# errors for that window. That IS the demo.
 apiVersion: v1
 kind: Service
 metadata:

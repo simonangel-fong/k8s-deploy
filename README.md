@@ -62,7 +62,11 @@ Deployment is a critical process: it makes an application available in a live en
 
 ![rolling: argocd gif](./docs/img/rolling_argocd.gif)
 
+> gradually replaces older versions of an application new ones
+
 ![rolling: curl gif](./docs/img/rolling_curl.gif)
+
+> zero downtime from V1.0.0 to V1.1.0
 
 ---
 

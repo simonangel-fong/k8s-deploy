@@ -24,12 +24,7 @@ gateway:
 
 api:
   appName: demo app - recreate
-  version: V6.0.1
+  version: V2.0.0
 
 security:
   enabled: true
-
-# Recreate strategy has NO tunable knobs — that's the whole point.
-# maxSurge / maxUnavailable would be invalid under strategy.type: Recreate.
-# The transition is: scale old RS to 0, wait for termination, scale new RS
-# up. Downtime is intrinsic; this chart exists to make it visible.

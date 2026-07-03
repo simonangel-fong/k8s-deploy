@@ -8,6 +8,7 @@
 
 ---
 
+
 ## Preparation
 
 ```sh
@@ -29,7 +30,10 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 ## Rollout
 
 ```sh
-# Terminal 1: watch pods vanish then reappear
+# sync app
+argocd app sync app-02-backend-rolling
+
+# confirm pod transitions
 kubectl get po -n backend -l app.kubernetes.io/name=backend-recreate -w
 
 # Terminal 2: measure the outage window

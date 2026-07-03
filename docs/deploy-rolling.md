@@ -46,6 +46,19 @@ while true; do
   echo
   sleep 0.5
 done
+
+# 22:49:14 {"app":"demo app - rolling","version":"V1.0.0"}
+# 22:49:15 {"app":"demo app - rolling","version":"V1.0.0"}
+# 22:49:15 {"app":"demo app - rolling","version":"V1.1.0"}
+# 22:49:16 {"app":"demo app - rolling","version":"V1.1.0"}
+# 22:49:16 {"app":"demo app - rolling","version":"V1.1.0"}
+# 22:49:17 {"app":"demo app - rolling","version":"V1.1.0"}
+# 22:49:18 {"app":"demo app - rolling","version":"V1.0.0"}
+# 22:49:18 {"app":"demo app - rolling","version":"V1.1.0"}
+# 22:49:19 {"app":"demo app - rolling","version":"V1.1.0"}
+
 ```
 
 ![pic](./img/rolling_argocd.gif)
+
+![pic](./img/rolling_curl.gif)

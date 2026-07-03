@@ -1,8 +1,3 @@
-# Trivial VirtualService — single route, single destination, no weighting.
-# Istio is present here only for mTLS + AuthorizationPolicy consistency
-# with the other charts. There is no traffic-splitting because Recreate
-# doesn't have multiple versions running at the same time — it has ONE
-# version running or NONE.
 apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:

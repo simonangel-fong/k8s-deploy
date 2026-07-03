@@ -5,9 +5,6 @@ metadata:
   labels:
     {{- include "backend-recreate.labels" . | nindent 4 }}
 data:
-  # nginx:alpine runs envsubst on /etc/nginx/templates/*.template at startup,
-  # rendering to /etc/nginx/conf.d/. $APP_NAME / $APP_VERSION come from the
-  # pod's env, so the version is frozen at pod creation.
   default.conf.template: |
     server {
       listen {{ .Values.service.port }};
