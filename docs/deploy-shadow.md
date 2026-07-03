@@ -61,12 +61,8 @@ kubectl argo rollouts promote backend-shadow -n backend    # or `undo`
 
 ```
 
-![shadow: argorollout gif](./img/shadow_argorollout.gif)
+![shadow: argorollout png](./img/shadow_argorollout.png)
 
 ![shadow: log](./img/shadow_preview.png)
 
-
-
-rollouts-pod-template-hash=67b95f5bd5,security.istio.io/tlsMode=istio,service.istio.io/canonical-name=backend-shadow,service.istio.io/canonical-revision=1.0.0,topology.kubernetes.io/region=canadacentral,topology.kubernetes.io/zone=0
-
-rollouts-pod-template-hash=f68675bcd,security.istio.io/tlsMode=istio,service.istio.io/canonical-name=backend-shadow,service.istio.io/canonical-revision=1.0.0,topology.kubernetes.io/region=canadacentral,topology.kubernetes.io/zone=0
+![shadow: kiali](./img/shadow_kiali.png)
