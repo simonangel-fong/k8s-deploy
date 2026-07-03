@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "backend-ab.fullname" . }}
+  labels:
+    {{- include "backend-ab.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "backend-ab.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backend-ab.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/01-configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: APP_NAME
+              value: {{ .Values.api.appName | quote }}
+            - name: APP_VERSION
+              value: {{ .Values.api.version | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/templates/default.conf.template
+              subPath: default.conf.template
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: {{ include "backend-ab.fullname" . }}
+  strategy:
+    canary:
+      stableService: {{ include "backend-ab.fullname" . }}-stable
+      canaryService: {{ include "backend-ab.fullname" . }}-canary
+      trafficRouting:
+        istio:
+          virtualServices:
+            - name: {{ include "backend-ab.fullname" . }}
+              routes:
+                - primary
+      steps:
+        {{- toYaml .Values.ab.canary.steps | nindent 8 }}

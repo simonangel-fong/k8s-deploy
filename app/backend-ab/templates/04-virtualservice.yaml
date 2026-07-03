@@ -1,0 +1,44 @@
+# A/B routing:
+#   Request with header `x-variant: b`  -> canary Service (variant B), 100%
+#   Any other request                    -> weighted split stable/canary,
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: {{ include "backend-ab.fullname" . }}
+  labels:
+    {{- include "backend-ab.labels" . | nindent 4 }}
+spec:
+  hosts:
+    - {{ .Values.host | quote }}
+  gateways:
+    - {{ .Values.gateway.namespace }}/{{ .Values.gateway.name }}
+  http:
+    # Variant lane — hit with `curl -H 'x-variant: b'` to reach B deterministically.
+    - name: variant
+      match:
+        - uri:
+            prefix: /api/
+          headers:
+            {{ .Values.ab.variantHeader | quote }}:
+              exact: {{ .Values.ab.variantValue | quote }}
+      route:
+        - destination:
+            host: {{ include "backend-ab.fullname" . }}-canary
+            port:
+              number: {{ .Values.service.port }}
+    # Primary lane — background weighted split, patched by Rollouts.
+    - name: primary
+      match:
+        - uri:
+            prefix: /api/
+      route:
+        - destination:
+            host: {{ include "backend-ab.fullname" . }}-stable
+            port:
+              number: {{ .Values.service.port }}
+          weight: 100
+        - destination:
+            host: {{ include "backend-ab.fullname" . }}-canary
+            port:
+              number: {{ .Values.service.port }}
+          weight: 0

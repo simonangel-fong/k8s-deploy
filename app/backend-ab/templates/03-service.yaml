@@ -1,0 +1,33 @@
+# Stable Service — variant A. Referenced by Rollout.spec.strategy.canary.stableService.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backend-ab.fullname" . }}-stable
+  labels:
+    {{- include "backend-ab.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "backend-ab.selectorLabels" . | nindent 4 }}
+---
+# Canary Service — variant B. Referenced by Rollout.spec.strategy.canary.canaryService.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backend-ab.fullname" . }}-canary
+  labels:
+    {{- include "backend-ab.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "backend-ab.selectorLabels" . | nindent 4 }}
