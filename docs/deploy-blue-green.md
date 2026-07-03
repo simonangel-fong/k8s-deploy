@@ -34,24 +34,26 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 
 ```sh
 # sync app
-argocd app sync app-02-backend-canary-multisvc
-
+argocd app sync app-02-backend-blue-green
+ 
 # confirm pod transitions
-kubectl get po -n backend -l app.kubernetes.io/name=backend-canary-multisvc -w
+kubectl get po -n backend -l app.kubernetes.io/name=backend-backend-blue-green -w
 
-# 2. Active lane still serves the old version:
+# Preview lane serves the new version
+while true; do
+  printf '%s preview ' "$(date +%T)"
+  curl -sw '\n' -H 'x-preview: true' https://deploy.arguswatcher.net/api/
+  sleep 0.5
+done
+
+# Active lane still serves the old version:
 while true; do
   printf '%s active  ' "$(date +%T)"
   curl -sw '\n' https://deploy.arguswatcher.net/api/
   sleep 0.5
 done
 
-# 3. Preview lane serves the new version — validate here before promoting:
-while true; do
-  printf '%s preview ' "$(date +%T)"
-  curl -sw '\n' -H 'x-preview: true' https://deploy.arguswatcher.net/api/
-  sleep 0.5
-done
+
 
 # 4. When happy, flip production traffic to the new ReplicaSet:
 kubectl argo rollouts promote backend-backend-blue-green -n backend
