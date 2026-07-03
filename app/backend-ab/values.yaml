@@ -34,10 +34,6 @@ ab:
   # e.g. curl -H 'x-variant: b' https://deploy.arguswatcher.net/api/
   variantHeader: x-variant
   variantValue: b
-  # Background weighted split applied to all non-header traffic. Rollouts
-  # patches the primary VirtualService route each step to shift weight from
-  # stable (A) toward canary (B). Manual promotion — the rollout parks at
-  # the final pause until a human runs `kubectl argo rollouts promote`.
   canary:
     steps:
       - setWeight: 10

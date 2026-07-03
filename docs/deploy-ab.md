@@ -12,12 +12,16 @@
 
 ```sh
 helm lint app/backend-ab
+# ==> Linting app/backend-ab
+# [INFO] Chart.yaml: icon is recommended
+
+# 1 chart(s) linted, 0 chart(s) failed
 
 # Visualization
 # argocd
 kubectl -n argocd port-forward svc/argocd-server 8080:443
 # argo rollouts
-kubectl -n argo-rollouts port-forward svc/argo-rollouts-dashboard 3100:3100
+kubectl -n argo-rollouts port-forward svc/argo-rollouts-dashboard 31000:3100
 # kiali
 kubectl -n istio-system port-forward svc/kiali 20001:20001
 # grafana
@@ -32,9 +36,16 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 # promote
 kubectl argo rollouts promote backend-ab -n backend
 
+# sync app
+argocd app sync app-02-backend-ab
+
+# confirm pod transitions
+kubectl get po -n backend -l app.kubernetes.io/name=backend-backend-blue-green -w
+
+
 # constant traffic
 while true; do
-  printf '%s variant a&b ' "$(date +%T)"
+  printf '%s stable ' "$(date +%T)"
   curl -sw '\n' https://deploy.arguswatcher.net/api/
   sleep 0.5
 done

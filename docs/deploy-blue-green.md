@@ -75,4 +75,6 @@ kubectl argo rollouts undo backend-backend-blue-green -n backend
 
 ![blue_green: argorollout gif](./img/blue_green_argorollout.gif)
 
-![blue_green: kiali gif](./img/blue_green_kiali.gif)
+![blue_green: preview](./img/blue_green_preview.png)
+
+![blue_green: flip](./img/blue_green_flip.png)

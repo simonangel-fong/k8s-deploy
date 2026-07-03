@@ -141,13 +141,24 @@ shadow
     - Roughly doubles compute cost during the overlap window.
     - Database and schema changes still need to be backward-compatible across both lanes.
 
+- **Argo Rollouts UI**:
+
 ![Blue-Green: argorollout gif](./docs/img/blue_green_argorollout.gif)
 
-- Traffic splitting
+> Manually promotion
+> Traffic flip
+> Old version auto remove
 
-![Blue-Green: kiali gif](./docs/img/blue_green_kiali01.gif)
-![Blue-Green: kiali gif](./docs/img/blue_green_kiali02.gif)
-![Blue-Green: kiali gif](./docs/img/blue_green_kiali03.gif)
+- Preview vs Active
+
+![blue_green: preview](./docs/img/blue_green_preview.png)
+
+> Upper: preview version
+> lower: active version
+
+![blue_green: flip](./docs/img/blue_green_flip.png)
+
+> the moment traffic flip
 
 ---
 
