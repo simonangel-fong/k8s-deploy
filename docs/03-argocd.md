@@ -24,6 +24,7 @@ kubectl port-forward service/argocd-server -n argocd 8080:443
 
 # install app-of-apps
 kubectl apply -f argocd/00-root.yaml
+# application.argoproj.io/00-root created
 
 # login
 argocd login localhost:8080

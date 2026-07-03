@@ -39,14 +39,13 @@ argocd app sync app-02-backend-canary-multisvc
 # confirm pod transitions
 kubectl get po -n backend -l app.kubernetes.io/name=backend-canary-multisvc -w
 
-# Terminal 2: measure the outage window
+# constant traffic
 while true; do
   printf '%s ' "$(date +%T)"
-  curl -s -o /dev/null -w '%{http_code} %{time_total}s\n' \
-    https://deploy.arguswatcher.net/api/
+  curl -s https://deploy.arguswatcher.net/api/
+  echo
   sleep 0.5
 done
-
 
 ```
 

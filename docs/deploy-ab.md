@@ -32,7 +32,7 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 # promote
 kubectl argo rollouts promote backend-ab -n backend
 
-# constant request
+# constant traffic
 while true; do
   printf '%s variant a&b ' "$(date +%T)"
   curl -sw '\n' https://deploy.arguswatcher.net/api/

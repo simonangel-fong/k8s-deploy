@@ -26,7 +26,10 @@ Frontend nginx no longer proxies `/api/` — Istio does the split at the edge:
 ```sh
 # enable sidecar injection
 kubectl label ns backend  istio-injection=enabled --overwrite
+# namespace/backend labeled
+
 kubectl label ns frontend istio-injection=enabled --overwrite
+# namespace/frontend labeled
 
 # restart pods
 kubectl rollout restart deploy/backend  -n backend
@@ -152,7 +155,8 @@ kubectl get authorizationpolicy,peerauthentication -A
 - Create `ClusterIssuer`
   - `Cloudflare` Token + `Let's Encrypt` Server
 - Create `Certificate`
-  - `Cloudflare A record`
+  - create `Cloudflare A record`, mapping record to IP: `kubectl get svc -n istio-ingress istio-gateway`
+  - create secret: `kubectl -n cert-manager create secret generic cloudflare-api-token --from-literal=api-token='<TOKEN>'`
 - Gateway:
   - `tls.httpsRedirect: true`
 

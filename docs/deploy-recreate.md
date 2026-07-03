@@ -38,8 +38,8 @@ kubectl get po -n backend -l app.kubernetes.io/name=backend-recreate -w
 # Terminal 2: measure the outage window
 while true; do
   printf '%s ' "$(date +%T)"
-  curl -s -o /dev/null -w '%{http_code} %{time_total}s\n' \
-    https://deploy.arguswatcher.net/api/
+  curl -s https://deploy.arguswatcher.net/api/
+  echo
   sleep 0.5
 done
 
