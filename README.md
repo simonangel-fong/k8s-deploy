@@ -37,9 +37,12 @@ Deployment is a critical process: it makes an application available in a live en
 ## Architecture
 
 ```
-|    aks                        |            |  cloudflare  |
-|[backend API] -> [fronend web] | -- tls --> |    DNS       |--> users
-|                               |            |              |
+recreate
+rolling
+canary
+blue-green
+a/b test
+shadow
 ```
 
 ---
@@ -94,6 +97,8 @@ Deployment is a critical process: it makes an application available in a live en
 
 ![recreate: curl gif](./docs/img/recreate_curl.gif)
 
+> experience downtime from V2.0.0 to V2.1.0: "no healthy upstream"
+
 ---
 
 ### Canary
@@ -108,6 +113,8 @@ Deployment is a critical process: it makes an application available in a live en
   - Limitations:
     - Requires reliable metrics and analysis rules to be truly automated; otherwise it becomes manual.
     - Both versions must coexist safely, including shared state and downstream contracts.
+
+- **Argo Rollouts UI**:
 
 ![canary: argorollout gif](./docs/img/canary_argorollout.gif)
 
@@ -208,5 +215,5 @@ Does the workload require zero concurrent versions?
 
 - [Web Application with Helm](docs/01-app.md)
 - [Infrastructure as Code via Terraform](docs/02-infra.md)
-- [ArgoCD](docs/03-argocd.md)
+- [ArgoCD](docs/03-argocd.md): add
 - [Network Layer by Istio](docs/04-istio.md)

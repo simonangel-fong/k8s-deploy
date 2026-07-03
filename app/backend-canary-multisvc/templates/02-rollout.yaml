@@ -14,7 +14,7 @@ spec:
       labels:
         {{- include "backend.labels" . | nindent 8 }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/01-configmap.yaml") . | sha256sum }}
     spec:
       containers:
         - name: {{ .Chart.Name }}

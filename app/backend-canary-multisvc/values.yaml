@@ -24,7 +24,7 @@ gateway:
 
 api:
   appName: demo app - backend-canary-multisvc
-  version: V1.1.2
+  version: V3.0.0
 
 security:
   enabled: true

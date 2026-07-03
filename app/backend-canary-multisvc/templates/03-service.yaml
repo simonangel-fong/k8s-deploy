@@ -1,11 +1,4 @@
-# Two Services required by the Argo Rollouts + Istio canary pattern.
-# Selectors here match ALL backend pods; Rollouts patches each Service's
-# selector at runtime with `rollouts-pod-template-hash: <hash>` to bind
-# stable -> old ReplicaSet, canary -> new ReplicaSet. The VirtualService
-# then weights traffic between the two.
----
-# Stable Service — receives traffic destined for the current (old) version.
-# Referenced by Rollout.spec.strategy.canary.stableService.
+# Stable Service: receives traffic destined for the current (old) version.
 apiVersion: v1
 kind: Service
 metadata:
@@ -22,8 +15,7 @@ spec:
   selector:
     {{- include "backend.selectorLabels" . | nindent 4 }}
 ---
-# Canary Service — receives traffic destined for the new version during a rollout.
-# Referenced by Rollout.spec.strategy.canary.canaryService.
+# Canary Service: receives traffic destined for the new version during a rollout.
 apiVersion: v1
 kind: Service
 metadata:

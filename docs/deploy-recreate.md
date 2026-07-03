@@ -8,7 +8,6 @@
 
 ---
 
-
 ## Preparation
 
 ```sh
@@ -63,3 +62,7 @@ done
 # 15:55:44 {"app":"demo app - recreate","version":"V6.0.1"}
 
 ```
+
+![recreate: argocd gif](./img/recreate_argocd.gif)
+
+![recreate: curl gif](./img/recreate_curl.gif)

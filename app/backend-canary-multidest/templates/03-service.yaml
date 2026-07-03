@@ -1,6 +1,3 @@
-# Single Service used by the subset-level Argo Rollouts + Istio canary pattern.
-# Selector matches ALL backend pods. Traffic is NOT split here — the
-# DestinationRule defines subsets, and the VirtualService weights between them.
 apiVersion: v1
 kind: Service
 metadata:
