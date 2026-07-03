@@ -30,11 +30,13 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 
 ---
 
----
-
 ## Rollout
 
 ```sh
+# sync app
+argocd app sync app-02-backend-shadow
+
+# constant traffic
 while true; do
   printf '%s ' "$(date +%T)"
   curl -s https://deploy.arguswatcher.net/api/
@@ -57,3 +59,7 @@ kubectl argo rollouts promote backend-shadow -n backend
 kubectl argo rollouts promote backend-shadow -n backend    # or `undo`
 
 ```
+
+![shadow: argorollout gif](./img/shadow_argorollout.gif)
+
+![shadow: log](./img/shadow_preview.png)

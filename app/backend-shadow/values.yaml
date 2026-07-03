@@ -24,7 +24,7 @@ gateway:
 
 api:
   appName: demo app - shadow
-  version: V6.0.0
+  version: V6.1.0
 
 security:
   enabled: true
