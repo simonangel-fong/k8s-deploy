@@ -62,7 +62,6 @@ Deployment is a critical process: it makes an application available in a live en
 
 ![rolling: argocd gif](./docs/img/rolling_argocd.gif)
 
-
 ![rolling: curl gif](./docs/img/rolling_curl.gif)
 
 ---
@@ -194,7 +193,7 @@ Does the workload require zero concurrent versions?
 
 ## Documentation
 
-- [Web Application with `Helm`](docs/01-app.md)
-- [`Infrastructure as Code` with `Terraform`](docs/02-infra.md)
-- [docs/03-argocd.md](docs/03-argocd.md) — Argo CD bootstrap phases
-- [docs/04-istio.md](docs/04-istio.md) — Gateway, mTLS, AuthorizationPolicy, and TLS
+- [Web Application with Helm](docs/01-app.md)
+- [Infrastructure as Code via Terraform](docs/02-infra.md)
+- [ArgoCD](docs/03-argocd.md)
+- [Network Layer by Istio](docs/04-istio.md)

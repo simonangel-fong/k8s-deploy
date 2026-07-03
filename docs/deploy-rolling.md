@@ -4,7 +4,7 @@
 
 - [Deployment - Rolling](#deployment---rolling)
   - [Preparation](#preparation)
-  - [Rollout](#rollout)
+  - [Test](#test)
 
 ---
 
@@ -12,6 +12,10 @@
 
 ```sh
 helm lint app/backend-rolling
+# ==> Linting app/backend-rolling
+# [INFO] Chart.yaml: icon is recommended
+
+# 1 chart(s) linted, 0 chart(s) failed
 
 # Visualization
 # argocd
@@ -26,12 +30,13 @@ kubectl -n istio-system port-forward svc/grafana 3000:3000
 
 ---
 
-## Rollout
+## Test
 
 ```sh
-argocd app diff app-02-backend-rolling
+# sync app
+argocd app sync app-02-backend-rolling
 
-# watch pod transitions
+# confirm pod transitions
 kubectl get po -n backend -l app.kubernetes.io/name=backend-rolling -w
 
 # constant traffic
@@ -41,8 +46,6 @@ while true; do
   echo
   sleep 0.5
 done
-
-
-
-
 ```
+
+![pic](./img/rolling_argocd.gif)

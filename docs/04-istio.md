@@ -1,3 +1,17 @@
+# Kubernetes Deployment Playbook: Network Layer by Istio
+
+[Back](../README.md)
+
+- [Kubernetes Deployment Playbook: Network Layer by Istio](#kubernetes-deployment-playbook-network-layer-by-istio)
+    - [Istio Gateway + VirtualService](#istio-gateway--virtualservice)
+  - [Sidecar Injection](#sidecar-injection)
+  - [Configure and test Gateway](#configure-and-test-gateway)
+  - [Network Policy: `AuthorizationPolicy`](#network-policy-authorizationpolicy)
+  - [Enable mTLS: `PeerAuthentication`](#enable-mtls-peerauthentication)
+  - [TLS via `cert-manager` + `Let's Encrypt`](#tls-via-cert-manager--lets-encrypt)
+
+---
+
 ### Istio Gateway + VirtualService
 
 Frontend nginx no longer proxies `/api/` — Istio does the split at the edge:
@@ -5,50 +19,91 @@ Frontend nginx no longer proxies `/api/` — Istio does the split at the edge:
 - `deploy.arguswatcher.net/api/*` → backend
 - `deploy.arguswatcher.net/*` → frontend
 
+---
+
+## Sidecar Injection
+
 ```sh
-# 1. enable sidecar injection in both namespaces, then restart pods
+# enable sidecar injection
 kubectl label ns backend  istio-injection=enabled --overwrite
 kubectl label ns frontend istio-injection=enabled --overwrite
+
+# restart pods
 kubectl rollout restart deploy/backend  -n backend
 kubectl rollout restart deploy/frontend -n frontend
+
+# confirm
 kubectl get po -n backend  -o wide
 # NAME                      READY   STATUS    RESTARTS   AGE   IP             NODE                              NOMINATED NODE   READINESS GATES
 # backend-d9fd66d48-5sqrq   2/2     Running   0          7s    10.244.1.157   aks-default-14028782-vmss000000   <none>           <none>
 kubectl get po -n frontend -o wide
 # NAME                        READY   STATUS    RESTARTS   AGE   IP            NODE                              NOMINATED NODE   READINESS GATES
 # frontend-754c4f9787-dvcj8   2/2     Running   0          20s   10.244.1.23   aks-default-14028782-vmss000000   <none>           <none>
+```
 
-# 2. discover the ingress LB IP
+---
+
+## Configure and test Gateway
+
+- Gateway
+
+```yaml
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: demo-gateway
+spec:
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+      tls:
+        httpsRedirect: true
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      hosts:
+      tls:
+        mode: SIMPLE
+        credentialName: { { .Values.tls.secretName } }
+```
+
+```sh
+# discover the ingress LB IP
 kubectl get svc -n istio-ingress istio-gateway
 # NAME            TYPE           CLUSTER-IP     EXTERNAL-IP       PORT(S)                                      AGE
 # istio-gateway   LoadBalancer   10.0.118.109   130.107.229.119   15021:32522/TCP,80:31492/TCP,443:31279/TCP   5m11s
 
-
-# 3. verify
+# verify
+curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/
+# web html
 curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/api/
 # {"app":"demo app","version":"V1.0.0"}
-curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/
 curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/healthz/
 # ok
 ```
 
-### Phase 05 — AuthorizationPolicy + STRICT mTLS
+---
+
+## Network Policy: `AuthorizationPolicy`
 
 Locks down `backend` and `frontend` at L7 (Envoy):
 
-- **PeerAuthentication STRICT** — non-mTLS connections rejected. Kubelet probes bypass sidecar (Istio rewrites them), so probes keep working.
-- **AuthorizationPolicy ALLOW** — only requests from the ingress gateway SPIFFE identity `cluster.local/ns/istio-ingress/sa/istio-gateway` are permitted, to expected paths only.
-- Anything else → **403 RBAC: access denied**.
-
-Enabled via `security.enabled: true` in each app chart's values.
+- `AuthorizationPolicy`:
+  - `ALLOW`: only requests from the ingress gateway
+  - `SPIFFE`: permit `cluster.local/ns/istio-ingress/sa/istio-gateway`
 
 ```sh
-# after push + argo sync
-
-# positive: still works through the gateway
+# verify
+curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/
+# web html
 curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/api/
 # {"app":"demo app","version":"V1.0.0"}
-curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/
+curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/healthz/
+# ok
 
 # negative: in-cluster call from a random pod should be denied
 kubectl run -n default --rm -it debug --image=curlimages/curl --restart=Never -- curl -sv http://backend.backend.svc.cluster.local/api/
@@ -80,63 +135,43 @@ kubectl get authorizationpolicy,peerauthentication -A
 # frontend    peerauthentication.security.istio.io/default   STRICT   2m16s
 ```
 
-### Phase 06 — TLS via cert-manager + Let's Encrypt
+---
 
-Cloudflare A record is DNS-only (grey cloud) so LE HTTP-01 can reach the origin.
-Staging issuer to start (browser will warn — expected); switch to prod later by editing `tls.issuer.server` in [app/gateway/values.yaml](app/gateway/values.yaml).
+## Enable mTLS: `PeerAuthentication`
 
-**Two-step rollout** because `httpsRedirect: true` would break the HTTP-01 challenge:
+- `PeerAuthentication`
+  - `STRICT`: non-mTLS connections rejected.
 
-**Step A** — TLS on :443, no redirect yet.
+- Anything else → **403 RBAC: access denied**.
+
+---
+
+## TLS via `cert-manager` + `Let's Encrypt`
+
+- Verify ownership by `DNS01` challenge
+- Create `ClusterIssuer`
+  - `Cloudflare` Token + `Let's Encrypt` Server
+- Create `Certificate`
+  - `Cloudflare A record`
+- Gateway:
+  - `tls.httpsRedirect: true`
 
 ```sh
-# values.yaml: tls.enabled=true, tls.httpsRedirect=false
-git push  # argo syncs cert-manager, ClusterIssuer, Certificate, :443 listener
-
-# watch the cert issue (staging is fast; ~30–60s)
+# confirm certificate
 kubectl -n istio-ingress get certificate
 # NAME        READY   SECRET       AGE
 # demo-cert   True    deploy-tls   25s
 
+kubectl -n istio-ingress get order
+# NAME                     STATE   AGE
+# demo-cert-1-1201275883   valid   12h
 
-# once READY=True, test HTTPS (staging cert is untrusted → -k)
-curl -k -s --resolve deploy.arguswatcher.net:443:130.107.229.119 https://deploy.arguswatcher.net/api/
+# confirm DNS
+curl -k -s https://deploy.arguswatcher.net/api/
 # {"app":"demo app","version":"V1.0.0"}
-curl -k -s --resolve deploy.arguswatcher.net:443:130.107.229.119 https://deploy.arguswatcher.net/
-
-# HTTP still works (no redirect yet)
-curl -s --resolve deploy.arguswatcher.net:80:130.107.229.119  http://deploy.arguswatcher.net/api/
-# {"app":"demo app","version":"V1.0.0"}
-```
-
-**Step B** — enable redirect.
-
-```sh
-# flip tls.httpsRedirect=true in app/gateway/values.yaml, push
-# HTTP now 301s to HTTPS
-curl -i --resolve deploy.arguswatcher.net:80:130.107.229.119 http://deploy.arguswatcher.net/
-# HTTP/1.1 200 OK
-# server: istio-envoy
-# date: Wed, 01 Jul 2026 20:39:26 GMT
-# content-type: text/html
-# content-length: 1016
-# last-modified: Wed, 01 Jul 2026 20:21:04 GMT
-# etag: "6a4576b0-3f8"
-# accept-ranges: bytes
-# x-envoy-upstream-service-time: 0
+curl -k -s https://deploy.arguswatcher.net/
+# html
 
 ```
 
----
-
-## Runbook
-
-```sh
-kubectl -n istio-ingress get certificaterequest,order,challenge
-
-kubectl -n istio-ingress describe challenge
-```
-
-- No Challenge object exists, Order is stuck → issuer/DNS/ACME registration problem.
-- Challenge exists, state = pending, reason mentions "self check failed" or HTTP 404 → the http01.ingress.class: istio solver created an Ingress but Istio isn't routing it. This is the most likely case given your setup.
-- Challenge shows "no such host" / DNS error → deploy.arguswatcher.net doesn't resolve to your ingress IP yet.
+![dns](./img/app_dns.png)
