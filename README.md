@@ -25,12 +25,12 @@ A cloud-native project that demonstrates six mainstream Kubernetes deployment st
 
 Deployment is a critical process: it makes an application available in a live environment and delivers business value.
 
-> How do team select the right deployment method for a given requirement?
+> How does a team select the right deployment method for a given requirement?
 
 - This project
   - creates and deploys a **simple web application** in a real-world environment (Cluster + TLS + DNS),
   - compares **six common deployment methods**,
-  - and concludes a **deployment decistion strategy**.
+  - and concludes with a **deployment decision strategy**.
 
 ---
 
@@ -65,13 +65,13 @@ shadow
 
 ![rolling: argocd gif](./docs/img/rolling_argocd.gif)
 
-> gradually replaces older versions of an application new ones
+> Gradually replaces older versions of an application with new ones.
 
-- curl command to confirm downtime
+- `curl` command to confirm downtime
 
 ![rolling: curl gif](./docs/img/rolling_curl.gif)
 
-> zero downtime from V1.0.0 to V1.1.0
+> Zero downtime from V1.0.0 to V1.1.0.
 
 ---
 
@@ -91,13 +91,13 @@ shadow
 
 ![recreate: argocd gif](./docs/img/recreate_argocd.gif)
 
-> Terminates all existing pods before starting the new version
+> Terminates all existing pods before starting the new version.
 
-- curl command to confirm downtime
+- `curl` command to confirm downtime
 
 ![recreate: curl gif](./docs/img/recreate_curl.gif)
 
-> experience downtime from V2.0.0 to V2.1.0: "no healthy upstream"
+> Experiences downtime from V2.0.0 to V2.1.0: "no healthy upstream".
 
 ---
 
@@ -118,13 +118,13 @@ shadow
 
 ![canary: argorollout gif](./docs/img/canary_argorollout.gif)
 
-> rollout control by seting weight
+> Rollout controlled by setting weight.
 
 - Traffic splitting
 
 ![canary: kiali gif](./docs/img/canary_kiali.gif)
 
-> traffic splits from 25%, 50%, to 100%.
+> Traffic splits from 25% to 50% to 100%.
 
 ---
 
@@ -145,20 +145,20 @@ shadow
 
 ![Blue-Green: argorollout gif](./docs/img/blue_green_argorollout.gif)
 
-> Manually promotion
-> Traffic flip
-> Old version auto remove
+> 1. Manual promotion;
+> 2. Traffic flip;
+> 3. Old version auto-removed.
 
 - Preview vs Active
 
 ![blue_green: preview](./docs/img/blue_green_preview.png)
 
-> Upper: preview version
-> lower: active version
+> Upper: header-based request gets the preview version.
+> Lower: active request gets the stable version.
 
 ![blue_green: flip](./docs/img/blue_green_flip.png)
 
-> the moment traffic flip
+> The moment traffic flips, from V4.0.0 to V4.1.0.
 
 ---
 
@@ -176,12 +176,14 @@ shadow
 
 ![ab: argorollout gif](./docs/img/ab_argorollout.gif)
 
-- headed preview vs stable
+> Canary rollout ensures progressive deployment; Istio splits traffic 50/50 for A/B testing.
+
+- Header-based preview vs stable
 
 ![ab: preview](./docs/img/ab_preview.png)
 
-> Table traffic hit both versions randomly
-> headed request hits preview version
+> Upper: header-based request hits the preview version.
+> Lower: stable traffic hits both versions randomly.
 
 ---
 
@@ -197,15 +199,13 @@ shadow
 
 - **Argo Rollouts UI**:
 
-![shadow: argorollout gif](./docs/img/shadow_argorollout.gif)
+![shadow: argorollout](./docs/img/shadow_argorollout.png)
 
-- Traffic splitting
+> Rollout of 2 pods to handle mirrored traffic.
 
-![shadow: kiali gif](./docs/img/shadow_kiali01.gif)
-![shadow: kiali gif](./docs/img/shadow_kiali02.gif)
-![shadow: kiali gif](./docs/img/shadow_kiali03.gif)
+![shadow: kiali](./docs/img/shadow_kiali.png)
 
-![shadow: curl gif](./docs/img/shadow_curl.gif)
+> Stable:canary ~= 50/50 confirms traffic is being mirrored.
 
 ---
 
