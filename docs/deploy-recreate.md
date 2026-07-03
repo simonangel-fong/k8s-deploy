@@ -63,6 +63,6 @@ done
 
 ```
 
-![recreate: argocd gif](./img/recreate_argocd.gif)
+![recreate: argocd gif](./img/deploy_recreate_argocd.gif)
 
-![recreate: curl gif](./img/recreate_curl.gif)
+![recreate: curl gif](./img/deploy_recreate_curl.gif)

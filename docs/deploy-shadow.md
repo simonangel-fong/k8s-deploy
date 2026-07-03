@@ -61,13 +61,13 @@ kubectl argo rollouts promote backend-shadow -n backend    # or `undo`
 
 ```
 
-![shadow: argorollout png](./img/shadow_argorollout.png)
+![shadow: argorollout png](./img/deploy_shadow_argorollout.png)
 
-![shadow: log](./img/shadow_log.png)
+![shadow: log](./img/deploy_shadow_log.png)
 
 > upper: stable traffic shows stable version V6.0.0
 > lower: canary pod log confirm traffic gets mirrored, receiving `GET` request.
 
-![shadow: kiali](./img/shadow_kiali.png)
+![shadow: kiali](./img/deploy_shadow_kiali.png)
 
 > stable:canary ~= 50/50 confirms traffic gets mirrored.

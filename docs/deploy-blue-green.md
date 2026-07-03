@@ -73,8 +73,8 @@ done
 kubectl argo rollouts undo backend-backend-blue-green -n backend
 ```
 
-![blue_green: argorollout gif](./img/blue_green_argorollout.gif)
+![blue_green: argorollout gif](./img/deploy_blue_green_argorollout.gif)
 
-![blue_green: preview](./img/blue_green_preview.png)
+![blue_green: preview](./img/deploy_blue_green_preview.png)
 
-![blue_green: flip](./img/blue_green_flip.png)
+![blue_green: flip](./img/deploy_blue_green_flip.png)

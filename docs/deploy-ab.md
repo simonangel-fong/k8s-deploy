@@ -63,6 +63,6 @@ kubectl argo rollouts undo backend-ab -n backend
 
 ```
 
-![ab: argorollout gif](./img/ab_argorollout.gif)
+![ab: argorollout gif](./img/deploy_ab_argorollout.gif)
 
-![ab: preview](./img/ab_preview.png)
+![ab: preview](./img/deploy_ab_preview.png)

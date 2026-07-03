@@ -59,6 +59,6 @@ done
 
 ```
 
-![pic](./img/rolling_argocd.gif)
+![pic](./img/deploy_rolling_argocd.gif)
 
-![pic](./img/rolling_curl.gif)
+![pic](./img/deploy_rolling_curl.gif)

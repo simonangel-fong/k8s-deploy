@@ -9,6 +9,7 @@ A cloud-native project that demonstrates six mainstream Kubernetes deployment st
 - [Kubernetes Deployment Playbook](#kubernetes-deployment-playbook)
   - [Challenge](#challenge)
   - [Architecture](#architecture)
+  - [Strategies Decision](#strategies-decision)
   - [Deployment Strategies](#deployment-strategies)
     - [Rolling Update](#rolling-update)
     - [Recreate](#recreate)
@@ -16,7 +17,6 @@ A cloud-native project that demonstrates six mainstream Kubernetes deployment st
     - [Blue-Green](#blue-green)
     - [A/B Testing](#ab-testing)
     - [Shadow Deployment](#shadow-deployment)
-  - [Strategies Decision](#strategies-decision)
   - [Documentation](#documentation)
 
 ---
@@ -36,14 +36,13 @@ Deployment is a critical process: it makes an application available in a live en
 
 ## Architecture
 
-```
-recreate
-rolling
-canary
-blue-green
-a/b test
-shadow
-```
+![diagram](./docs/img/architecture.png)
+
+---
+
+## Strategies Decision
+
+![pic](./docs/img/decision_tree.png)
 
 ---
 
@@ -51,25 +50,27 @@ shadow
 
 ### Rolling Update
 
-- `Rolling Update`
-  - Definition: Gradually replaces old pods with new ones, using `maxSurge` and `maxUnavailable` so the service stays available throughout.
-  - Tools: Kubernetes (native `Deployment` strategy)
-  - Pros:
-    - Zero downtime when readiness probes are configured correctly.
-    - Built into Kubernetes: no additional controllers required.
-  - Cons:
-    - Old and new versions run simultaneously, so the app must be backward-compatible.
-    - Rollback is another rolling update, not an instant switch.
+- `Rolling Update`: Incrementally replaces old pods with new ones via `maxSurge` and `maxUnavailable`, keeping the service available throughout the rollout.
+- **Pros**:
+  - Zero downtime when readiness probes are configured correctly.
+  - Native to Kubernetes — no additional controllers required.
+  - Resource-efficient: no duplicate environment required.
+- **Cons**:
+  - Old and new versions coexist during rollout, so the app must be backward-compatible.
+  - Rollback is another rolling update, not an instant switch.
+- **Common use cases**:
+  - Default choice for stateless services requiring continuous availability.
+  - Routine, low-risk version upgrades in production.
 
 - **ArgoCD UI**:
 
-![rolling: argocd gif](./docs/img/rolling_argocd.gif)
+![rolling: argocd gif](./docs/img/deploy_rolling_argocd.gif)
 
 > Gradually replaces older versions of an application with new ones.
 
 - `curl` command to confirm downtime
 
-![rolling: curl gif](./docs/img/rolling_curl.gif)
+![rolling: curl gif](./docs/img/deploy_rolling_curl.gif)
 
 > Zero downtime from V1.0.0 to V1.1.0.
 
@@ -78,24 +79,28 @@ shadow
 ### Recreate
 
 - `Recreate`
-  - Definition: Terminates all existing pods before starting the new version, resulting in a brief service outage during the switch.
-  - Tools: Kubernetes (native `Deployment` strategy)
-  - Pros:
-    - Simplest possible rollout: no version overlap to reason about.
+  - **Definition**: Terminates all existing pods before starting the new version, producing a brief service outage during the switch.
+  - **Tools**: Kubernetes (native `Deployment` strategy).
+  - **Pros**:
+    - Simplest possible rollout — no version overlap to reason about.
     - Guarantees a clean cutover for workloads that cannot tolerate concurrent versions.
-  - Cons:
-    - Incurs downtime between the shutdown and readiness of the new pods.
-    - Not suitable for user-facing production services with availability SLAs.
+    - No extra compute overhead during the transition.
+  - **Cons**:
+    - Incurs downtime between old-pod shutdown and new-pod readiness.
+    - Unsuitable for user-facing services with availability SLAs.
+  - **Common use cases**:
+    - Batch jobs, internal tools, or dev environments where downtime is acceptable.
+    - Applications with breaking schema or protocol changes that forbid version overlap.
 
 - **ArgoCD UI**:
 
-![recreate: argocd gif](./docs/img/recreate_argocd.gif)
+![recreate: argocd gif](./docs/img/deploy_recreate_argocd.gif)
 
 > Terminates all existing pods before starting the new version.
 
 - `curl` command to confirm downtime
 
-![recreate: curl gif](./docs/img/recreate_curl.gif)
+![recreate: curl gif](./docs/img/deploy_recreate_curl.gif)
 
 > Experiences downtime from V2.0.0 to V2.1.0: "no healthy upstream".
 
@@ -104,25 +109,28 @@ shadow
 ### Canary
 
 - `Canary Deployment`
-  - Definition: Progressively shifts a small percentage of live traffic to the new version, increasing the weight in stages while monitoring health before promoting to 100%.
-  - Tools: Argo Rollouts + Istio (weighted `VirtualService`)
-  - Benefits:
+  - **Definition**: Progressively shifts a small percentage of live traffic to the new version, increasing the weight in stages while monitoring health before full promotion.
+  - **Tools**: Argo Rollouts + Istio (weighted `VirtualService`).
+  - **Pros**:
     - Limits blast radius by exposing only a subset of users to the new version.
     - Enables data-driven promotion via automated analysis of real production metrics.
-    - Rollback is fast — shift the weight back to the stable version.
-  - Limitations:
-    - Requires reliable metrics and analysis rules to be truly automated; otherwise it becomes manual.
+    - Fast rollback by shifting traffic weight back to the stable version.
+  - **Cons**:
+    - Requires reliable metrics and analysis rules; otherwise promotion becomes manual.
     - Both versions must coexist safely, including shared state and downstream contracts.
+  - **Common use cases**:
+    - High-risk releases where gradual, monitored exposure is required.
+    - Services with strong observability and automated rollback criteria.
 
 - **Argo Rollouts UI**:
 
-![canary: argorollout gif](./docs/img/canary_argorollout.gif)
+![canary: argorollout gif](./docs/img/deploy_canary_argorollout.gif)
 
 > Rollout controlled by setting weight.
 
 - Traffic splitting
 
-![canary: kiali gif](./docs/img/canary_kiali.gif)
+![canary: kiali gif](./docs/img/deploy_canary_kiali.gif)
 
 > Traffic splits from 25% to 50% to 100%.
 
@@ -143,7 +151,7 @@ shadow
 
 - **Argo Rollouts UI**:
 
-![Blue-Green: argorollout gif](./docs/img/blue_green_argorollout.gif)
+![Blue-Green: argorollout gif](./docs/img/deploy_blue_green_argorollout.gif)
 
 > 1. Manual promotion;
 > 2. Traffic flip;
@@ -151,12 +159,12 @@ shadow
 
 - Preview vs Active
 
-![blue_green: preview](./docs/img/blue_green_preview.png)
+![blue_green: preview](./docs/img/deploy_blue_green_preview.png)
 
 > Upper: header-based request gets the preview version.
 > Lower: active request gets the stable version.
 
-![blue_green: flip](./docs/img/blue_green_flip.png)
+![blue_green: flip](./docs/img/deploy_blue_green_flip.png)
 
 > The moment traffic flips, from V4.0.0 to V4.1.0.
 
@@ -174,13 +182,13 @@ shadow
 
 - **Argo Rollouts UI**:
 
-![ab: argorollout gif](./docs/img/ab_argorollout.gif)
+![ab: argorollout gif](./docs/img/deploy_ab_argorollout.gif)
 
 > Canary rollout ensures progressive deployment; Istio splits traffic 50/50 for A/B testing.
 
 - Header-based preview vs stable
 
-![ab: preview](./docs/img/ab_preview.png)
+![ab: preview](./docs/img/deploy_ab_preview.png)
 
 > Upper: header-based request hits the preview version.
 > Lower: stable traffic hits both versions randomly.
@@ -199,31 +207,13 @@ shadow
 
 - **Argo Rollouts UI**:
 
-![shadow: argorollout](./docs/img/shadow_argorollout.png)
+![shadow: argorollout](./docs/img/deploy_shadow_argorollout.png)
 
 > Rollout of 2 pods to handle mirrored traffic.
 
-![shadow: kiali](./docs/img/shadow_kiali.png)
+![shadow: kiali](./docs/img/deploy_shadow_kiali.png)
 
 > Stable:canary ~= 50/50 confirms traffic is being mirrored.
-
----
-
-## Strategies Decision
-
-The decision tree this repo follows:
-
-```txt
-Does the workload require zero concurrent versions?
-├── Yes → Recreate. Accept downtime.
-└── No → Do you need pod-lifecycle only, or traffic control?
-    ├── Pod-lifecycle only → RollingUpdate.
-    └── Traffic control → Argo Rollouts:
-        ├── Instant rollback matters most        → Blue-Green
-        ├── Progressive real-user exposure       → Canary
-        ├── Compare versions at parity           → A/B (header + weight)
-        └── Validate without exposing users      → Shadow (mirror)
-```
 
 ---
 

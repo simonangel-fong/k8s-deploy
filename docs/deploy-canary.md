@@ -56,6 +56,6 @@ done
 # 10:44:32 {"app":"demo app - backend-canary-multisvc","version":"V3.1.0"}
 ```
 
-![canary: argorollout gif](./img/canary_argorollout.gif)
+![canary: argorollout gif](./img/deploy_canary_argorollout.gif)
 
-![canary: kiali gif](./img/canary_kiali.gif)
+![canary: kiali gif](./img/deploy_canary_kiali.gif)
