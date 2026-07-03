@@ -24,7 +24,7 @@ gateway:
 
 api:
   appName: demo app - blue green
-  version: V2.2.1
+  version: V4.0.0
 
 security:
   enabled: true
