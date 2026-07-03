@@ -64,6 +64,8 @@ Deployment is a critical process: it makes an application available in a live en
 
 > gradually replaces older versions of an application new ones
 
+- curl command to confirm downtime
+
 ![rolling: curl gif](./docs/img/rolling_curl.gif)
 
 > zero downtime from V1.0.0 to V1.1.0
@@ -82,7 +84,14 @@ Deployment is a critical process: it makes an application available in a live en
     - Incurs downtime between the shutdown and readiness of the new pods.
     - Not suitable for user-facing production services with availability SLAs.
 
+- **ArgoCD UI**:
+
 ![recreate: argocd gif](./docs/img/recreate_argocd.gif)
+
+> Terminates all existing pods before starting the new version
+
+- curl command to confirm downtime
+
 ![recreate: curl gif](./docs/img/recreate_curl.gif)
 
 ---

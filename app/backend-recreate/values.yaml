@@ -24,7 +24,7 @@ gateway:
 
 api:
   appName: demo app - recreate
-  version: V2.0.0
+  version: V2.1.0
 
 security:
   enabled: true
