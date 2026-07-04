@@ -36,7 +36,7 @@ Deployment is a critical process: it makes an application available in a live en
 
 ## Architecture
 
-![diagram](./docs/img/architecture.png)
+![diagram](./docs/img/architecture.gif)
 
 ---
 
