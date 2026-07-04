@@ -36,7 +36,8 @@ Deployment is a critical process: it makes an application available in a live en
 
 ## Architecture
 
-![diagram](./docs/img/architecture.gif)
+![diagram](./docs/img/infra_architecture.gif)
+![diagram](./docs/img/kube_architecture.png)
 
 ---
 
@@ -78,19 +79,17 @@ Deployment is a critical process: it makes an application available in a live en
 
 ### Recreate
 
-- `Recreate`
-  - **Definition**: Terminates all existing pods before starting the new version, producing a brief service outage during the switch.
-  - **Tools**: Kubernetes (native `Deployment` strategy).
-  - **Pros**:
-    - Simplest possible rollout — no version overlap to reason about.
-    - Guarantees a clean cutover for workloads that cannot tolerate concurrent versions.
-    - No extra compute overhead during the transition.
-  - **Cons**:
-    - Incurs downtime between old-pod shutdown and new-pod readiness.
-    - Unsuitable for user-facing services with availability SLAs.
-  - **Common use cases**:
-    - Batch jobs, internal tools, or dev environments where downtime is acceptable.
-    - Applications with breaking schema or protocol changes that forbid version overlap.
+- `Recreate`: Terminates all existing pods before starting the new version, producing a brief service outage during the switch.
+- **Pros**:
+  - Simplest possible rollout — no version overlap to reason about.
+  - Guarantees a clean cutover for workloads that cannot tolerate concurrent versions.
+  - No extra compute overhead during the transition.
+- **Cons**:
+  - Incurs downtime between old-pod shutdown and new-pod readiness.
+  - Unsuitable for user-facing services with availability SLAs.
+- **Common use cases**:
+  - Batch jobs, internal tools, or dev environments where downtime is acceptable.
+  - Applications with breaking schema or protocol changes that forbid version overlap.
 
 - **ArgoCD UI**:
 
@@ -108,19 +107,17 @@ Deployment is a critical process: it makes an application available in a live en
 
 ### Canary
 
-- `Canary Deployment`
-  - **Definition**: Progressively shifts a small percentage of live traffic to the new version, increasing the weight in stages while monitoring health before full promotion.
-  - **Tools**: Argo Rollouts + Istio (weighted `VirtualService`).
-  - **Pros**:
-    - Limits blast radius by exposing only a subset of users to the new version.
-    - Enables data-driven promotion via automated analysis of real production metrics.
-    - Fast rollback by shifting traffic weight back to the stable version.
-  - **Cons**:
-    - Requires reliable metrics and analysis rules; otherwise promotion becomes manual.
-    - Both versions must coexist safely, including shared state and downstream contracts.
-  - **Common use cases**:
-    - High-risk releases where gradual, monitored exposure is required.
-    - Services with strong observability and automated rollback criteria.
+- `Canary Deployment`: Progressively shifts a small percentage of live traffic to the new version, increasing the weight in stages while monitoring health before full promotion.
+- **Pros**:
+  - Limits blast radius by exposing only a subset of users to the new version.
+  - Enables data-driven promotion via automated analysis of real production metrics.
+  - Fast rollback by shifting traffic weight back to the stable version.
+- **Cons**:
+  - Requires reliable metrics and analysis rules; otherwise promotion becomes manual.
+  - Both versions must coexist safely, including shared state and downstream contracts.
+- **Common use cases**:
+  - High-risk releases where gradual, monitored exposure is required.
+  - Services with strong observability and automated rollback criteria.
 
 - **Argo Rollouts UI**:
 
@@ -138,16 +135,14 @@ Deployment is a critical process: it makes an application available in a live en
 
 ### Blue-Green
 
-- `Blue-Green Deployment`
-  - Definition: Runs two identical environments — blue (current) and green (new) — and cuts all traffic over at once after the green environment passes validation.
-  - Tools: Argo Rollouts + Istio (active/preview services)
-  - Benefits:
-    - Instant cutover and equally instant rollback by flipping the router back to blue.
-    - The new version can be fully validated on the preview lane before any user sees it.
-    - No version mixing at the traffic layer — cleaner for stateful or contract-sensitive services.
-  - Limitations:
-    - Roughly doubles compute cost during the overlap window.
-    - Database and schema changes still need to be backward-compatible across both lanes.
+- `Blue-Green Deployment`: Runs two identical environments — blue (current) and green (new) — and cuts all traffic over at once after the green environment passes validation.
+- **Pros**:
+  - Instant cutover and equally instant rollback by flipping the router back to blue.
+  - The new version can be fully validated on the preview lane before any user sees it.
+  - No version mixing at the traffic layer — cleaner for stateful or contract-sensitive services.
+- **Cons**:
+  - Roughly doubles compute cost during the overlap window.
+  - Database and schema changes still need to be backward-compatible across both lanes.
 
 - **Argo Rollouts UI**:
 
@@ -174,11 +169,10 @@ Deployment is a critical process: it makes an application available in a live en
 
 - `A/B Testing`
   - Definition: Routes specific user segments to different versions based on request attributes (headers, cookies, geography) rather than random weights, so behavior can be compared under matched conditions.
-  - Tools: Argo Rollouts + Istio (header-matched `VirtualService`)
-  - Use cases:
-    - Feature experimentation — measure conversion or engagement between variants.
-    - Targeted rollout to beta users, internal testers, or a specific region.
-    - Comparing UX or algorithm changes with statistically meaningful cohorts.
+- **Use cases**:
+  - Feature experimentation: measure conversion or engagement between variants.
+  - Targeted rollout to beta users, internal testers, or a specific region.
+  - Comparing UX or algorithm changes with statistically meaningful cohorts.
 
 - **Argo Rollouts UI**:
 
@@ -197,13 +191,11 @@ Deployment is a critical process: it makes an application available in a live en
 
 ### Shadow Deployment
 
-- `Shadow (Traffic Mirroring)`
-  - Definition: Mirrors a copy of live production traffic to the new version while responses are discarded, so the candidate is exercised with real workload without affecting users.
-  - Tools: Argo Rollouts + Istio (`mirror` and `mirrorPercentage` on `VirtualService`)
-  - Use cases:
-    - Performance and load testing under real production traffic patterns.
-    - Validating a rewritten or refactored service against the incumbent for behavioral parity.
-    - Safely exercising risky changes (new database driver, dependency upgrade) with zero user impact.
+- `Shadow (Traffic Mirroring)`: Mirrors a copy of live production traffic to the new version while responses are discarded, so the candidate is exercised with real workload without affecting users.
+- **Use cases:**
+  - Performance and load testing under real production traffic patterns.
+  - Validating a rewritten or refactored service against the incumbent for behavioral parity.
+  - Safely exercising risky changes (new database driver, dependency upgrade) with zero user impact.
 
 - **Argo Rollouts UI**:
 
