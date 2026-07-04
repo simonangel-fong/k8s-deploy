@@ -213,5 +213,11 @@ Deployment is a critical process: it makes an application available in a live en
 
 - [Web Application with Helm](docs/01-app.md)
 - [Infrastructure as Code via Terraform](docs/02-infra.md)
-- [ArgoCD](docs/03-argocd.md): add sync; terraform;
+- [ArgoCD](docs/03-argocd.md)
 - [Network Layer by Istio](docs/04-istio.md)
+- [Deployment: Rolling Update](docs/deploy-rolling.md)
+- [Deployment: Recreate](docs/deploy-recreate.md)
+- [Deployment: Canary](docs/deploy-canary.md)
+- [Deployment: Blue-Green](docs/deploy-blue-green.md)
+- [Deployment: A/B Testing](docs/deploy-ab.md)
+- [Deployment: Shadow](docs/deploy-shadow.md)
