@@ -6,7 +6,7 @@ A cloud-native project that demonstrates six mainstream Kubernetes deployment st
 
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white&style=plastic) ![Argo CD](https://img.shields.io/badge/Argo%20CD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white&style=plastic) ![Argo Rollouts](https://img.shields.io/badge/Argo%20Rollouts-EF7B4D?style=for-the-badge&logo=argo&logoColor=white&style=plastic) ![Istio](https://img.shields.io/badge/Istio-7B42BC?style=for-the-badge&logo=istio&logoColor=white&style=plastic) ![Helm](https://img.shields.io/badge/helm-%230F1689.svg?style=for-the-badge&logo=helm&logoColor=white&style=plastic) ![Grafana](https://img.shields.io/badge/grafana-%23F46800.svg?style=for-the-badge&logo=grafana&logoColor=white&style=plastic) ![Microsoft Azure](https://custom-icon-badges.demolab.com/badge/Azure%20AKS-0089D6?logo=msazure&logoColor=white&style=plastic) ![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white&style=plastic) ![Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=Cloudflare&logoColor=white&style=plastic)
 
-- [Kubernetes Deployment Playbook](#kubernetes-deployment-playbook)
+<!-- - [Kubernetes Deployment Playbook](#kubernetes-deployment-playbook)
   - [Challenge](#challenge)
   - [Architecture](#architecture)
   - [Strategies Decision](#strategies-decision)
@@ -17,7 +17,7 @@ A cloud-native project that demonstrates six mainstream Kubernetes deployment st
     - [Blue-Green](#blue-green)
     - [A/B Testing](#ab-testing)
     - [Shadow Deployment](#shadow-deployment)
-  - [Documentation](#documentation)
+  - [Documentation](#documentation) -->
 
 ---
 
