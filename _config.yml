@@ -7,5 +7,14 @@ header_pages: []
 exclude:
   - infra/
   - app/
-  - docs/
   - README.md
+  - docs/01-app.md
+  - docs/02-infra.md
+  - docs/03-argocd.md
+  - docs/04-istio.md
+  - docs/deploy-ab.md
+  - docs/deploy-blue-green.md
+  - docs/deploy-canary.md
+  - docs/deploy-recreate.md
+  - docs/deploy-rolling.md
+  - docs/deploy-shadow.md
