@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kubernetes Deployment Playbook</title>
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-  />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
@@ -20,10 +17,15 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navMenu">
-        <ul class="navbar-nav ms-auto gap-2">
-          <li class="nav-item"><a class="nav-link" href="#overview">Overview</a></li>
+        <ul class="navbar-nav ms-auto gap-1">
+          <li class="nav-item"><a class="nav-link" href="#challenge">Challenge</a></li>
           <li class="nav-item"><a class="nav-link" href="#architecture">Architecture</a></li>
-          <li class="nav-item"><a class="nav-link" href="#strategies">Strategies</a></li>
+          <li class="nav-item"><a class="nav-link" href="#rolling">Rolling</a></li>
+          <li class="nav-item"><a class="nav-link" href="#recreate">Recreate</a></li>
+          <li class="nav-item"><a class="nav-link" href="#canary">Canary</a></li>
+          <li class="nav-item"><a class="nav-link" href="#blue-green">Blue-Green</a></li>
+          <li class="nav-item"><a class="nav-link" href="#ab-testing">A/B Testing</a></li>
+          <li class="nav-item"><a class="nav-link" href="#shadow">Shadow</a></li>
           <li class="nav-item"><a class="nav-link" href="#decision">Decision</a></li>
         </ul>
       </div>
@@ -31,22 +33,318 @@
   </nav>
 
   <!-- Hero -->
-  <section class="py-5 text-center border-bottom border-secondary">
-    <div class="container py-3">
-      <h1 class="display-4 fw-bold">Kubernetes Deployment Playbook</h1>
-      <p class="lead text-secondary mt-3">One web app. Six strategies. Real-world settings.</p>
-      <a href="https://github.com/simonangel-fong/k8s-deploy" class="btn btn-outline-light mt-3" target="_blank">
-        View on GitHub
-      </a>
+  <section id="hero" class="hero-section border-bottom border-secondary">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <div class="row">
+        <div class="col-12 col-md-8">
+          <h1 class="display-4 fw-bold">Kubernetes Deployment Playbook</h1>
+          <p class="lead text-light mt-3">One web app. Six strategies. Real-world settings.</p>
+          <p class="mt-3 fs-4">A cloud-native project that demonstrates six mainstream Kubernetes deployment strategies on a single AKS cluster.</p>
+          <a href="https://github.com/simonangel-fong/k8s-deploy"
+             class="btn btn-outline-light mt-4" target="_blank" rel="noopener">
+            View on GitHub
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <main class="container py-5">
-    <p class="text-center text-secondary">Hello World — Phase 00 scaffold</p>
-  </main>
+  <!-- Business Challenge & Solution -->
+  <section id="challenge" class="py-5 border-bottom border-secondary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-8 fs-5">
+          <h2 class="fw-bold mb-4">Business Challenge &amp; Solution</h2>
+          <p>Deployment is a critical process: it makes an application available in a live environment and delivers business value.</p>
+          <blockquote class="blockquote border-start border-primary ps-3 my-4">
+            <p class="mb-0 fst-italic">How does a team select the right deployment method for a given requirement?</p>
+          </blockquote>
+          <p>This project:</p>
+          <ul>
+            <li>creates and deploys a simple web application in a real-world environment (Cluster + TLS + DNS)</li>
+            <li>compares six common deployment methods</li>
+            <li>concludes with a deployment decision strategy</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <footer class="border-top border-secondary text-center text-secondary py-4">
-    <small>&copy; 2026 simonangel-fong</small>
+  <!-- Architecture -->
+  <section id="architecture" class="py-5 border-bottom border-secondary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-8 fs-5">
+          <h2 class="fw-bold mb-4">Architecture</h2>
+        </div>
+      </div>
+      <div class="row justify-content-center mb-5">
+        <div class="col-10 text-center">
+          <img src="img/infra_architecture.gif" alt="Infrastructure architecture" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Infrastructure Architecture</p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-10 text-center">
+          <img src="img/kube_architecture.png" alt="Kubernetes architecture" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Kubernetes Components</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rolling Update -->
+  <section id="rolling" class="py-5 border-bottom border-secondary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-8 fs-5">
+          <h2 class="fw-bold mb-3">Rolling Update</h2>
+          <p>Incrementally replaces old pods with new ones via <code>maxSurge</code> and <code>maxUnavailable</code>, keeping the service available throughout the rollout.</p>
+          <p><strong>Pros:</strong></p>
+          <ul>
+            <li>Zero downtime when readiness probes are configured correctly.</li>
+            <li>Native to Kubernetes — no additional controllers required.</li>
+            <li>Resource-efficient: no duplicate environment required.</li>
+          </ul>
+          <p><strong>Cons:</strong></p>
+          <ul>
+            <li>Old and new versions coexist during rollout, so the app must be backward-compatible.</li>
+            <li>Rollback is another rolling update, not an instant switch.</li>
+          </ul>
+          <p><strong>Common use cases:</strong></p>
+          <ul>
+            <li>Default choice for stateless services requiring continuous availability.</li>
+            <li>Routine, low-risk version upgrades in production.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row justify-content-center mb-4 mt-4">
+        <div class="col-10 text-center">
+          <img src="img/deploy_rolling_argocd.gif" alt="Rolling update in Argo CD" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Gradually replaces older versions of an application with new ones.</p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-10 text-center">
+          <img src="img/deploy_rolling_curl.gif" alt="Rolling update curl output" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Zero downtime from V1.0.0 to V1.1.0.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recreate -->
+  <section id="recreate" class="py-5 border-bottom border-secondary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-8 fs-5">
+          <h2 class="fw-bold mb-3">Recreate</h2>
+          <p>Terminates all existing pods before starting the new version, producing a brief service outage during the switch.</p>
+          <p><strong>Pros:</strong></p>
+          <ul>
+            <li>Simplest possible rollout — no version overlap to reason about.</li>
+            <li>Guarantees a clean cutover for workloads that cannot tolerate concurrent versions.</li>
+            <li>No extra compute overhead during the transition.</li>
+          </ul>
+          <p><strong>Cons:</strong></p>
+          <ul>
+            <li>Incurs downtime between old-pod shutdown and new-pod readiness.</li>
+            <li>Unsuitable for user-facing services with availability SLAs.</li>
+          </ul>
+          <p><strong>Common use cases:</strong></p>
+          <ul>
+            <li>Batch jobs, internal tools, or dev environments where downtime is acceptable.</li>
+            <li>Applications with breaking schema or protocol changes that forbid version overlap.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row justify-content-center mb-4 mt-4">
+        <div class="col-10 text-center">
+          <img src="img/deploy_recreate_argocd.gif" alt="Recreate in Argo CD" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Terminates all existing pods before starting the new version.</p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-10 text-center">
+          <img src="img/deploy_recreate_curl.gif" alt="Recreate curl output" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Experiences downtime from V2.0.0 to V2.1.0: "no healthy upstream".</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Canary -->
+  <section id="canary" class="py-5 border-bottom border-secondary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-8 fs-5">
+          <h2 class="fw-bold mb-3">Canary</h2>
+          <p>Progressively shifts a small percentage of live traffic to the new version, increasing the weight in stages while monitoring health before full promotion.</p>
+          <p><strong>Pros:</strong></p>
+          <ul>
+            <li>Limits blast radius by exposing only a subset of users to the new version.</li>
+            <li>Enables data-driven promotion via automated analysis of real production metrics.</li>
+            <li>Fast rollback by shifting traffic weight back to the stable version.</li>
+          </ul>
+          <p><strong>Cons:</strong></p>
+          <ul>
+            <li>Requires reliable metrics and analysis rules; otherwise promotion becomes manual.</li>
+            <li>Both versions must coexist safely, including shared state and downstream contracts.</li>
+          </ul>
+          <p><strong>Common use cases:</strong></p>
+          <ul>
+            <li>High-risk releases where gradual, monitored exposure is required.</li>
+            <li>Services with strong observability and automated rollback criteria.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row justify-content-center mb-4 mt-4">
+        <div class="col-10 text-center">
+          <img src="img/deploy_canary_argorollout.gif" alt="Canary in Argo Rollouts" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Rollout controlled by setting weight.</p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-10 text-center">
+          <img src="img/deploy_canary_kiali.gif" alt="Canary traffic split in Kiali" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Traffic splits from 25% to 50% to 100%.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Blue-Green -->
+  <section id="blue-green" class="py-5 border-bottom border-secondary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-8 fs-5">
+          <h2 class="fw-bold mb-3">Blue-Green</h2>
+          <p>Runs two identical environments — blue (current) and green (new) — and cuts all traffic over at once after the green environment passes validation.</p>
+          <p><strong>Pros:</strong></p>
+          <ul>
+            <li>Instant cutover and equally instant rollback by flipping the router back to blue.</li>
+            <li>The new version can be fully validated on the preview lane before any user sees it.</li>
+            <li>No version mixing at the traffic layer — cleaner for stateful or contract-sensitive services.</li>
+          </ul>
+          <p><strong>Cons:</strong></p>
+          <ul>
+            <li>Roughly doubles compute cost during the overlap window.</li>
+            <li>Database and schema changes still need to be backward-compatible across both lanes.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row justify-content-center mb-4 mt-4">
+        <div class="col-10 text-center">
+          <img src="img/deploy_blue_green_argorollout.gif" alt="Blue-Green in Argo Rollouts" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Manual promotion, traffic flip, old version auto-removed.</p>
+        </div>
+      </div>
+      <div class="row justify-content-center mb-4">
+        <div class="col-10 text-center">
+          <img src="img/deploy_blue_green_preview.png" alt="Blue-Green preview lane" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Header-based request gets the preview version; active request gets the stable version.</p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-10 text-center">
+          <img src="img/deploy_blue_green_flip.png" alt="Blue-Green traffic flip" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">The moment traffic flips, from V4.0.0 to V4.1.0.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- A/B Testing -->
+  <section id="ab-testing" class="py-5 border-bottom border-secondary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-8 fs-5">
+          <h2 class="fw-bold mb-3">A/B Testing</h2>
+          <p>Routes specific user segments to different versions based on request attributes (headers, cookies, geography) rather than random weights, so behavior can be compared under matched conditions.</p>
+          <p><strong>Use cases:</strong></p>
+          <ul>
+            <li>Feature experimentation: measure conversion or engagement between variants.</li>
+            <li>Targeted rollout to beta users, internal testers, or a specific region.</li>
+            <li>Comparing UX or algorithm changes with statistically meaningful cohorts.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row justify-content-center mb-4 mt-4">
+        <div class="col-10 text-center">
+          <img src="img/deploy_ab_argorollout.gif" alt="A/B Testing in Argo Rollouts" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Canary rollout ensures progressive deployment; Istio splits traffic 50/50 for A/B testing.</p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-10 text-center">
+          <img src="img/deploy_ab_preview.png" alt="A/B Testing preview" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Header-based request hits the preview version; stable traffic hits both versions randomly.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Shadow -->
+  <section id="shadow" class="py-5 border-bottom border-secondary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-8 fs-5">
+          <h2 class="fw-bold mb-3">Shadow Deployment</h2>
+          <p>Mirrors a copy of live production traffic to the new version while responses are discarded, so the candidate is exercised with real workload without affecting users.</p>
+          <p><strong>Use cases:</strong></p>
+          <ul>
+            <li>Performance and load testing under real production traffic patterns.</li>
+            <li>Validating a rewritten or refactored service against the incumbent for behavioral parity.</li>
+            <li>Safely exercising risky changes (new database driver, dependency upgrade) with zero user impact.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row justify-content-center mb-4 mt-4">
+        <div class="col-10 text-center">
+          <img src="img/deploy_shadow_argorollout.png" alt="Shadow in Argo Rollouts" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Rollout of 2 pods to handle mirrored traffic.</p>
+        </div>
+      </div>
+      <div class="row justify-content-center mb-4">
+        <div class="col-10 text-center">
+          <img src="img/deploy_shadow_log.png" alt="Shadow log output" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Stable traffic shows stable version V6.0.0; canary pod log confirms traffic gets mirrored.</p>
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-10 text-center">
+          <img src="img/deploy_shadow_kiali.png" alt="Shadow traffic in Kiali" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Stable:canary ~= 50/50 confirms traffic is being mirrored.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Summary: Strategies Decision -->
+  <section id="decision" class="py-5 border-bottom border-secondary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-8 fs-5">
+          <h2 class="fw-bold mb-3">Strategies Decision</h2>
+          <p>Use this decision tree to choose the right deployment strategy for your release.</p>
+        </div>
+      </div>
+      <div class="row justify-content-center mt-4">
+        <div class="col-10 text-center">
+          <img src="img/decision_tree.png" alt="Deployment strategy decision tree" class="img-fluid rounded" />
+          <p class="text-secondary mt-2">Deployment strategy decision tree.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-4 text-center text-secondary border-top border-secondary">
+    <div class="container">
+      <a href="https://www.arguswatcher.net" class="text-secondary text-decoration-none" target="_blank" rel="noopener">Arguswatcher</a>
+      &copy; 2026 | Kubernetes Deployment Runbook
+    </div>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
