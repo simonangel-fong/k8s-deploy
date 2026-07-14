@@ -7,4 +7,5 @@ header_pages: []
 exclude:
   - infra/
   - app/
+  - docs/
   - README.md
