@@ -1,7 +1,3 @@
 title: Kubernetes Deployment Playbook
 description: One web app. Six strategies. Real-world settings.
 theme: minima
-
-# Serve README.md as the homepage
-readme_index:
-  with_frontmatter: true
